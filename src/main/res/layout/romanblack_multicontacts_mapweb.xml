@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent">
+        
+    <WebView android:id="@+id/romanblack_multicontacts_mapweb_webview"
+             android:layout_height="fill_parent"
+             android:layout_width="wrap_content"
+             android:layout_weight="1"/>
+        
+    <com.ibuildapp.romanblack.MultiContactsPlugin.helpers.MapBottomPanel
+        android:id="@+id/romanblack_multicontacts_mapweb_bottom_panel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" >
+                
+        <RelativeLayout android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" >
+
+            <Button android:id="@+id/romanblack_multicontacts_mapweb_back_to_my_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:background="@drawable/map_find_me_btn" />
+
+            <Button android:id="@+id/romanblack_multicontacts_mapweb_user_direction"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_toRightOf="@+id/romanblack_multicontacts_mapweb_back_to_my_location"
+                    android:background="@drawable/map_getdirection_btn_9patch"
+                    android:text="@string/multicontacts_show_direction"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+                    
+        </RelativeLayout>
+        
+    </com.ibuildapp.romanblack.MultiContactsPlugin.helpers.MapBottomPanel>
+    
+</LinearLayout>
+

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="#FFF" android:orientation="vertical">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:orientation="vertical"
+                  android:gravity="center_horizontal"
+                  android:id="@+id/romanblack_multicontacts_main_root" android:padding="7dp">
+
+        <!-- Editext for Search -->
+        <RelativeLayout
+                android:id="@+id/inputSearchLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+            <EditText
+                    android:id="@+id/inputSearch"
+                    android:layout_width="fill_parent"
+                    android:layout_height="40dp"
+                    android:hint="@string/multicontacts_search_person"
+					android:textColor="#e6000000"
+					android:textColorHint="#33000000"
+                    android:background="@drawable/backwithborder" android:paddingLeft="4dp" android:enabled="true"
+                    android:editable="true"/>
+            <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:id="@+id/multicontacts_delete_search" android:src="@drawable/multicontacts_delete_search"
+                    android:layout_alignParentLeft="false" android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" android:layout_marginRight="6dp"/>
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/no_found_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40dp"
+            android:textStyle="bold"
+            android:textSize="16dp"
+            android:text= "@string/no_results_found"
+            android:visibility="gone"/>
+        <ListView android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:cacheColorHint="#00000000"
+                  android:id="@+id/romanblack_multicontacts_list" android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+

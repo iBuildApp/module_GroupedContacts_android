@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common_save_upper">Сохранить</string>
+    <string name="common_cancel_upper">Отмена</string>
+    <string name="common_modify_upper">Изменить</string>
+    <string name="common_yes_upper">Да</string>
+    <string name="common_no_upper">Нет</string>
+    <string name="common_loading_upper">Загрузка...</string>
+    <string name="common_registration_upper">Регистрация...</string>
+    <string name="common_home_upper">Домой</string>
+    <string name="common_sign_up_upper">Регистрация</string>
+    <string name="common_sign_in_upper">Войти</string>
+    <string name="common_back">Назад</string>
+    <string name="common_back_upper">Назад</string>
+    <string name="common_send_email_upper">отправить email</string>
+    <string name="common_email_upper">email</string>
+    <string name="common_email_upper_colon">email</string>
+    <string name="common_password_upper">Пароль</string>
+    <string name="common_log_in_upper">Логин</string>
+    <string name="common_log_in_upper_colon">Логин</string>
+    <string name="common_sharing_first_part">только что добавлен комментарий</string>
+    <string name="common_sharing_second_part">Изображение через</string>
+    <string name="common_sharing_third_part">Загрузить через iPhone/Android</string>
+    <string name="common_login_with_facebook_upper">Войти через Facebook</string>
+    <string name="common_login_with_twitter_upper">Войти через Twitter</string>
+    <string name="common__login_with_ibuildapp_upper">Войти через iBuildApp</string>
+    <string name="common_login_with_email_upper">Войти через Email</string>
+    <string name="common_emaillogin_use_email_upper">Использовать email для входа</string>
+    <string name="common_seconds">секунд</string>
+    <string name="common_a_minute_ago">минуту назад</string>
+    <string name="common_minutes">минут</string>
+    <string name="common_an_hour_ago">час назад</string>
+    <string name="common_hours">часов</string>
+    <string name="common_one_day">день</string>
+    <string name="common_days">дней</string>
+    <string name="common_date_just_now">Сейчас</string>
+    <string name="common_date_yesterday">Вчера</string>
+    <string name="common_account">Аккаунт</string>
+    <string name="common_tap_to_enter">Нажмите для входа</string>
+    <string name="common_clear_upper">Очистить</string>
+    <string name="common_done_upper">Завершить</string>
+    <string name="common_submit_upper">Отправить</string>
+    <string name="common_confirm_upper">Подтвердить</string>
+    <string name="common_address_upper_colon">Адрес:</string>
+    <string name="common_parking_upper_colon">Парковка</string>
+    <string name="common_add_to_calendar">Добавить в календарь</string>
+    <string name="common_get_direction">Получить направление</string>
+    <string name="common_date_upper">Дата</string>
+    <string name="common_time_upper">Время</string>
+    <string name="common_specify_upper">Определить</string>
+    <string name="common_firstname_upper">Имя</string>
+    <string name="common_lastname_upper">Фамилия</string>
+    <string name="common_registration_agreement">Нажимая кнопку «Зарегистрироваться», Вы принимаете условия
+        Пользовательского соглашения.
+    </string>
+    <string name="alert_no_internet">Мобильный интернет отключен. Включите интернет, либо используйте WiFi</string>
+    <string name="alert_cannot_init">Невозможно инициализировать плагин</string>
+    <string name="alert_twitter_auth_error">Не удалось войти в Twitter</string>
+    <string name="alert_facebook_auth_error">Не удалось войти в Facebook</string>
+    <string name="alert_email_auth_error">Не удалось войти c помощью email</string>
+    <string name="alert_not_logged_in">Вы не зашли в систему</string>
+    <string name="alert_invalid_email">Некорректный email</string>
+    <string name="alert_gps_not_available">GPS недоступен</string>
+    <string name="alert_gps_initialization">Подождите, пока завершится инициализация GPS</string>
+    <string name="alert_gps_wrong_route">Невозможно проложить маршрут</string>
+    <string name="alert_registration_email_inuse">Данный email уже используется. Пожалуйста введите другой email
+    </string>
+    <string name="alert_registration_fillin_fields">Заполните все поля</string>
+    <string name="alert_registration_spam">Имя и Фамилия совпадают. Похоже на спам, пожалуйста, измените Имя либо
+        Фамилию
+    </string>
+    <string name="alert_registration_two_symbols_name">Имя должно содержать как минимум два символа</string>
+    <string name="alert_registration_two_symbols_password">Пароль должен содержать как минимум два символа</string>
+    <string name="alert_registration_correct_email">Пожалуйста введите корректный email</string>
+    <string name="alert_registration_password_dont_match">Пароли не совпадают</string>
+    <string name="alert_registration_error">Ошибка регистрации</string>
+    <string name="romanblack_multicontacts_call">Позвонить</string>
+    <string name="romanblack_multicontacts_contacts">Контакты</string>
+    <string name="romanblack_multicontacts_phone_upper">Телефон</string>
+    <string name="romanblack_multicontacts_name_upper">Имя</string>
+    <string name="romanblack_multicontacts_site_upper">Сайт</string>
+    <string name="romanblack_multicontacts_location">Местоположение</string>
+    <string name="romanblack_multicontacts_alert_no_persons">Список персон пуст</string>
+    <string name="romanblack_multicontacts_alert_no_contact_data">Контактные данные отсутствуют</string>
+    <string name="title">Заголовок</string>
+    <string name="discription">Описание</string>
+
+    <string name="romanblack_multicontacts_alert_contact_added">Контакт добавлен в адресную книгу</string>
+    <string name="romanblack_multicontacts_alert_contact_added_error">Ошибка добавления контакта в адресную книгу</string>
+    <string name="romanblack_multicontacts_alert_gps_not_available">GPS недоступен.</string>
+    <string name="romanblack_multicontacts_alert_wait_for_gps">Подождите, пока завершится инициализация GPS.</string>
+    <string name="common_upper_cancel_q">Отмена</string>
+    <string name="multicontacts_search_person">Найти контакт</string>
+    <string name="multicontacts_add_to_phonebook">Добавить в Контакты</string>
+    <string name="multicontacts_webview_title">Contacts</string>
+    <string name="multicontacts_share_via_email">Отправить контакт через email</string>
+    <string name="share_contact_via_sms">Отправить контакт по SMS</string>
+    
+    <string name="multicontacts_show_direction">Показать маршрут</string>
+    
+    <string name="multicontacts_name">Имя</string>
+    <string name="multicontacts_address">Адрес</string>
+    <string name="multicontacts_phone">Телефон</string>
+    <string name="multicontacts_email">Email</string>
+    <string name="multicontacts_site">Веб-сайт</string>
+    <string name="no_results_found">Результатов не найдено</string>
+</resources>
