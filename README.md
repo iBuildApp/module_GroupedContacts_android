@@ -1,3 +1,4 @@
+Use our code to save yourself time on cross-platform, cross-device and cross OS version development and testing
 # android module GroupedContacts
 Contacts widget is designed for displaying contact information: avatar, name, phone, email, website address. By clicking on the phone number is possible to make a call, by clicking on the e-mail - send a message, go to the website via the link, the place on the map display to the specified address.
 
