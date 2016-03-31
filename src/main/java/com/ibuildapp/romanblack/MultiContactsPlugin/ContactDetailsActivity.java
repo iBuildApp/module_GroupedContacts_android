@@ -1,17 +1,18 @@
 /****************************************************************************
-*                                                                           *
-*  Copyright (C) 2014-2015 iBuildApp, Inc. ( http://ibuildapp.com )         *
-*                                                                           *
-*  This file is part of iBuildApp.                                          *
-*                                                                           *
-*  This Source Code Form is subject to the terms of the iBuildApp License.  *
-*  You can obtain one at http://ibuildapp.com/license/                      *
-*                                                                           *
-****************************************************************************/
+ *                                                                           *
+ *  Copyright (C) 2014-2015 iBuildApp, Inc. ( http://ibuildapp.com )         *
+ *                                                                           *
+ *  This file is part of iBuildApp.                                          *
+ *                                                                           *
+ *  This Source Code Form is subject to the terms of the iBuildApp License.  *
+ *  You can obtain one at http://ibuildapp.com/license/                      *
+ *                                                                           *
+ ****************************************************************************/
 package com.ibuildapp.romanblack.MultiContactsPlugin;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,12 +33,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import com.appbuilder.sdk.android.AppBuilderModuleMain;
+import com.appbuilder.sdk.android.DialogSharing;
 import com.appbuilder.sdk.android.Utils;
 import com.appbuilder.sdk.android.Widget;
 import com.ibuildapp.romanblack.MultiContactsPlugin.adapters.ContactDetailsAdapter;
@@ -60,6 +63,9 @@ import java.util.Iterator;
  */
 public class ContactDetailsActivity extends AppBuilderModuleMain {
 
+    private static final String PARAM_SEND_MAIL = "send_mail";
+    private static final String PARAM_SEND_SMS = "send_sms";
+    private static final String PARAM_ADD_CONTACT = "add_contact";
 
     private static final int SHARE_EMAIL_ID = 0;
     private static final int SHARE_SMS_ID = 1;
@@ -142,27 +148,69 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                 return;
             }
             setTopBarTitle(widget.getTitle());
-            boolean homeBtn = store.getBoolean("homebtn", false);
 
-            boolean showSideBar = ((Boolean) getIntent().getExtras().getSerializable("showSideBar")).booleanValue();
-            if (!showSideBar) {
-                if (homeBtn) {
-                    setTopBarLeftButtonText(getResources().getString(R.string.common_home_upper), true, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            finish();
-                            return;
-                        }
-                    });
-                } else {
-                    setTopBarLeftButtonText(getResources().getString(R.string.common_back_upper), true, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            finish();
-                            return;
-                        }
-                    });
+            Boolean single = currentIntent.getBooleanExtra("single", true);
+            String buttonTitle = single? getResources().getString(R.string.common_home_upper): getResources().getString(R.string.common_back_upper);
+            setTopBarLeftButtonText(buttonTitle, true, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    finish();
                 }
+            });
+
+            if((Boolean.TRUE.equals(widget.getParameter(PARAM_SEND_MAIL))) ||
+                    (Boolean.TRUE.equals(widget.getParameter(PARAM_SEND_SMS))) ||
+                    (Boolean.TRUE.equals(widget.getParameter(PARAM_SEND_SMS)))) {
+
+                ImageView shareButton = (ImageView) getLayoutInflater().inflate(R.layout.romanblack_multicontacts_share_btn, null);
+                shareButton.setLayoutParams(new LinearLayout.LayoutParams((int) (29 * getResources().getDisplayMetrics().density), (int) (39 * getResources().getDisplayMetrics().density)));
+                shareButton.setColorFilter(navBarDesign.itemDesign.textColor);
+                setTopBarRightButton(shareButton, getString(R.string.multicontacts_list_share), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        DialogSharing.Configuration.Builder sharingDialogBuilder = new DialogSharing.Configuration.Builder();
+
+                        if(Boolean.TRUE.equals(widget.getParameter(PARAM_SEND_MAIL)))
+                            sharingDialogBuilder.setEmailSharingClickListener(new DialogSharing.Item.OnClickListener() {
+                                @Override
+                                public void onClick() {
+                                    String message = getContactInfo();
+                                    Intent email = new Intent(Intent.ACTION_SEND);
+                                    email.putExtra(Intent.EXTRA_TEXT, message);
+                                    email.setType("message/rfc822");
+                                    startActivity(Intent.createChooser(email, getString(R.string.choose_email_client)));
+                                }
+                            });
+
+                        if(Boolean.TRUE.equals(widget.getParameter(PARAM_SEND_SMS)))
+                            sharingDialogBuilder.setSmsSharingClickListener(new DialogSharing.Item.OnClickListener() {
+                                @Override
+                                public void onClick() {
+                                    String message = getContactInfo();
+
+                                    try {
+                                        Utils.sendSms(ContactDetailsActivity.this, message);
+                                    } catch (ActivityNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+
+                        if(Boolean.TRUE.equals(widget.getParameter(PARAM_ADD_CONTACT)))
+                            sharingDialogBuilder.addCustomListener(R.string.multicontacts_add_to_phonebook, R.drawable.multicontacts_add_to_contacts, true, new DialogSharing.Item.OnClickListener() {
+                                @Override
+                                public void onClick() {
+                                    createNewContact(
+                                            person.getName(),
+                                            person.getPhone(),
+                                            person.getEmail());
+                                }
+                            });
+
+                        showDialogSharing(sharingDialogBuilder.build());
+                    }
+                });
+
             }
 
             hasSchema = store.getBoolean("hasschema");
@@ -603,14 +651,14 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // set menu items
-        menu.add(0, SHARE_EMAIL_ID, Menu.NONE, getString(R.string.multicontacts_share_via_email));
-        menu.add(0, SHARE_SMS_ID, Menu.NONE, getString(R.string.share_contact_via_sms));
+//        menu.add(0, SHARE_EMAIL_ID, Menu.NONE, getString(R.string.multicontacts_share_via_email));
+//        menu.add(0, SHARE_SMS_ID, Menu.NONE, getString(R.string.share_contact_via_sms));
 
-        return super.onCreateOptionsMenu(menu);
+        return false;
     }
 
     public boolean onPrepareOptionsMenu(Menu menu) {
-        return true;
+        return false;
     }
 
     @Override
@@ -636,7 +684,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
             }
         }
 
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     /**

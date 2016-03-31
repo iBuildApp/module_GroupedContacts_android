@@ -98,6 +98,7 @@
     <string name="multicontacts_search_person">Search by contact info</string>
     <string name="multicontacts_add_to_phonebook">Add to Contacts</string>
     <string name="multicontacts_webview_title">Contacts</string>
+    <string name="multicontacts_list_share">Share</string>
     <string name="multicontacts_share_via_email">Share contact via email</string>
     <string name="share_contact_via_sms">Share contact via SMS</string>
     
@@ -109,4 +110,5 @@
     <string name="multicontacts_email">Email</string>
     <string name="multicontacts_site">Site</string>
     <string name="no_results_found">No results found</string>
+    <string name="choose_email_client">Choose an Email client</string>
 </resources>

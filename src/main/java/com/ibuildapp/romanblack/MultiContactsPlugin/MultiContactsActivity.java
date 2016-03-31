@@ -1,13 +1,13 @@
 /****************************************************************************
-*                                                                           *
-*  Copyright (C) 2014-2015 iBuildApp, Inc. ( http://ibuildapp.com )         *
-*                                                                           *
-*  This file is part of iBuildApp.                                          *
-*                                                                           *
-*  This Source Code Form is subject to the terms of the iBuildApp License.  *
-*  You can obtain one at http://ibuildapp.com/license/                      *
-*                                                                           *
-****************************************************************************/
+ *                                                                           *
+ *  Copyright (C) 2014-2015 iBuildApp, Inc. ( http://ibuildapp.com )         *
+ *                                                                           *
+ *  This file is part of iBuildApp.                                          *
+ *                                                                           *
+ *  This Source Code Form is subject to the terms of the iBuildApp License.  *
+ *  You can obtain one at http://ibuildapp.com/license/                      *
+ *                                                                           *
+ ****************************************************************************/
 package com.ibuildapp.romanblack.MultiContactsPlugin;
 
 import android.app.ProgressDialog;
@@ -158,19 +158,15 @@ public class MultiContactsActivity extends AppBuilderModuleMain {
     public void create() {
         try {
             setContentView(R.layout.romanblack_multicontacts_main);
-            boolean showSideBar = ((Boolean) getIntent().getExtras().getSerializable("showSideBar")).booleanValue();
-            if (!showSideBar) {
-                setTopBarLeftButtonText(getResources().getString(R.string.common_back_upper), true, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        finish();
-                        return;
-                    }
-                });
+            setTopBarLeftButtonText(getResources().getString(R.string.common_back_upper), true, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    finish();
+                    return;
+                }
+            });
 
-            }
-
-            RelativeLayout inputSearchLayout = (RelativeLayout) findViewById(R.id.inputSearchLayout);
+            LinearLayout inputSearchLayout = (LinearLayout) findViewById(R.id.multicontacts_search_layout);
             inputSearchLayout.setVisibility(View.GONE);
 
             resources = getResources();
@@ -257,6 +253,7 @@ public class MultiContactsActivity extends AppBuilderModuleMain {
             Intent details = new Intent(this, ContactDetailsActivity.class);
             details.putExtra("Widget", widget);
             details.putExtra("person", neededPersons.get(position));
+            details.putExtra("single",false);
             details.putExtra("isdark", isChemeDark(Statics.color1));
             details.putExtra("hasschema", PluginData.getInstance().isHasColorSchema());
             startActivity(details);

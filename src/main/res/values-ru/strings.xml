@@ -104,4 +104,6 @@
     <string name="multicontacts_email">Email</string>
     <string name="multicontacts_site">Веб-сайт</string>
     <string name="no_results_found">Результатов не найдено</string>
+    <string name="multicontacts_list_share">Поделиться</string>
+    <string name="choose_email_client">Выберите Email клиент</string>
 </resources>
