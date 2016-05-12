@@ -21,11 +21,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
@@ -105,6 +109,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                     new Handler().postDelayed(new Runnable() {
                         public void run() {
                             finish();
+                            overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
                         }
                     }, 5000);
                 }
@@ -139,6 +144,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                     }
                     if (parser.isHasColorSchema()) {
                         root.setBackgroundColor(Statics.color1);
+                        setTopBarBackgroundColor(Statics.color1);
                         backgroundLoaded = true;
                     } else {
                         if (widget.isBackgroundColor()) {
@@ -189,6 +195,8 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
             }
         }
     };
+    private View separator;
+    private View backSeparator;
 
     @Override
     public void create() {
@@ -231,8 +239,10 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                         Statics.color3 = parser.getColor3();
                         Statics.color4 = parser.getColor4();
                         Statics.color5 = parser.getColor5();
+                        Statics.isLight = parser.isLight();
 
                         PluginData.getInstance().setPersons(parser.getPersons());
+                        PluginData.getInstance().prepareCounts();
                         // set background color/image/httpimage
 
                         handler.sendEmptyMessage(SET_ROOT_BACKGROUND);
@@ -244,29 +254,6 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
         }
     }
 
-    /**
-     * This method using when module data is too big to put in Intent
-     *
-     * @param fileName - xml module data file name
-     * @return xml module data
-     */
-//    private String readXmlFromFile(String fileName) {
-//        Context context = this.getApplicationContext();
-//        StringBuilder stringBuilder = new StringBuilder();
-//        String line;
-//        BufferedReader in = null;
-//
-//        try {
-//            in = new BufferedReader(new FileReader(new File(fileName)));
-//            while ((line = in.readLine()) != null) {
-//                stringBuilder.append(line);
-//            }
-//        } catch (FileNotFoundException e) {
-//        } catch (IOException e) {
-//        }
-//
-//        return stringBuilder.toString();
-//    }
 
     /**
      * Prepares page UI or starts ContactDetailsActivity if there is only one
@@ -281,7 +268,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                 details.putExtra("Widget", widget);
                 details.putExtra("person", persons.get(0));
                 details.putExtra("single", true);
-                details.putExtra("isdark", Utils.isChemeDark(Statics.color1));
+                details.putExtra("isdark", Statics.isLight);
                 details.putExtra("hasschema", PluginData.getInstance().isHasColorSchema());
                 details.putExtra("homebtn", true);
                 finish();
@@ -292,16 +279,19 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
         }
         setContentView(R.layout.romanblack_multicontacts_main);
 
-        setTopBarTitle(widget.getTitle());
-        setTopBarLeftButtonText(getResources().getString(R.string.common_home_upper), true, new View.OnClickListener() {
+        setTopBarTitle(TextUtils.isEmpty(widget.getTitle()) ? "" : widget.getTitle());
+        setTopBarLeftButtonTextAndColor(getResources().getString(R.string.common_home_upper), getResources().getColor(android.R.color.black), true, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
-                return;
+                overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
             }
         });
+        setTopBarTitleColor(getResources().getColor(android.R.color.black));
 
         clearSearch = (ImageView) findViewById(R.id.multicontacts_delete_search);
+        separator = findViewById(R.id.gc_head_separator);
+        backSeparator = findViewById(R.id.gc_back_separator);
 
         clearSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -317,10 +307,18 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
         multicontactsSearchLayout = (LinearLayout) findViewById(R.id.multicontacts_search_layout);
         moveLayout = (LinearLayout) findViewById(R.id.move_layout);
 
-        if (Statics.color1 == Color.parseColor("#FFFFFF"))
-            multicontactsSearchLayout.setBackgroundResource(R.drawable.backwithborderblack);
+        backSeparator.setBackgroundColor(Statics.color1);
+        if (Statics.isLight) {
+            separator.setBackgroundColor(Color.parseColor("#4d000000"));
+        } else {
+            separator.setBackgroundColor(Color.parseColor("#4dFFFFFF"));
+        }
+
+        if (Statics.color1 == Color.WHITE)
+            multicontactsSearchLayout.setBackgroundColor(Color.parseColor("#33000000"));
         else
-            multicontactsSearchLayout.setBackgroundResource( R.drawable.backwithborder);
+            multicontactsSearchLayout.setBackgroundColor(Color.parseColor("#66FFFFFF"));
+
         multicontactsSearchLayout.setVisibility(View.GONE);
         searchContactsEditText = (EditText) findViewById(R.id.inputSearch);
         if (getPackageName().endsWith("p638839")) {
@@ -350,9 +348,9 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                                 new GroupContactsAdapter(
                                         MultiContactsPlugin.this,
                                         cats,
-                                        Utils.isChemeDark(Statics.color1));
+                                        Statics.isLight);
 
-                        listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
+                    //    listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
                         listView.setAdapter(adapter);
 
                         listView.setOnItemClickListener(new OnItemClickListener() {
@@ -368,9 +366,9 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                                 new MultiContactsAdapter(
                                         MultiContactsPlugin.this,
                                         neededPersons,
-                                        Utils.isChemeDark(Statics.color1));
+                                        Statics.isLight);
 
-                        listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
+                        //listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
                         listView.setAdapter(adapter);
                         listView.setOnItemClickListener(new OnItemClickListener() {
                             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -399,9 +397,9 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                                 new MultiContactsAdapter(
                                         MultiContactsPlugin.this,
                                         neededPersons,
-                                        Utils.isChemeDark(Statics.color1));
+                                        Statics.isLight);
 
-                        listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
+                        //listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
                         listView.setAdapter(adapter);
 
                         listView.setOnItemClickListener(new OnItemClickListener() {
@@ -445,28 +443,6 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
         return false;
     }
 
-    private void moveToCenter() {
-        TranslateAnimation animation = new TranslateAnimation(0, positionLayoutCenterX,
-                0.0f, 0.0f);
-        animation.setDuration(500);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                moveLayout.layout(positionLayoutCenterX,0,moveLayout.getWidth(),moveLayout.getHeight() );
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        moveLayout.startAnimation(animation);
-    }
 
     public void moveToLeft(){
         positionLayoutCenterX = moveLayout.getLeft();
@@ -497,6 +473,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
         switch (requestCode) {
             case ONLY_ONE_CONTACT: {
                 finish();
+                overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
             }
             break;
         }
@@ -516,7 +493,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                 details.putExtra("Widget", widget);
                 details.putExtra("person", persons.get(0));
                 details.putExtra("single", true);
-                details.putExtra("isdark", Utils.isChemeDark(Statics.color1));
+                details.putExtra("isdark", Statics.isLight);
                 details.putExtra("hasschema", PluginData.getInstance().isHasColorSchema());
                 startActivity(details);
                 finish();
@@ -525,7 +502,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
             }
         } else {
             try {
-                List<String> categories = new ArrayList<String>();
+                List<String> categories = new ArrayList<>();
                 for (Person p : persons) {
                     String c = p.getCategory();
                     if (c != null && !categories.contains(c)) {
@@ -539,8 +516,8 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                     neededPersons.addAll(persons);
                     MultiContactsAdapter adapter = new MultiContactsAdapter(this,
                             neededPersons,
-                            Utils.isChemeDark(Statics.color1));
-                    listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
+                            Statics.isLight);
+                   // listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
                     listView.setAdapter(adapter);
                     listView.setOnItemClickListener(new OnItemClickListener() {
                         public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -555,9 +532,9 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
 
                     GroupContactsAdapter adapter = new GroupContactsAdapter(this,
                             neededCategories,
-                            Utils.isChemeDark(Statics.color1));
+                            Statics.isLight);
                     listView.setAdapter(adapter);
-                    listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
+                    //listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
                     listView.setOnItemClickListener(new OnItemClickListener() {
                         public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                             showCategoryPersons(arg2, arg1);
@@ -583,9 +560,10 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
             details.putExtra("Widget", widget);
             details.putExtra("category", neededCategories.get(position));
             details.putExtra("single", false);
-            details.putExtra("isdark", Utils.isChemeDark(Statics.color1));
+            details.putExtra("isdark", Statics.isLight);
             details.putExtra("hasschema", parser.isHasColorSchema());
             startActivity(details);
+            overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
 
         } catch (Exception e) {//ErrorLogging
         }
@@ -603,7 +581,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
             details.putExtra("Widget", widget);
             details.putExtra("person", neededPersons.get(position));
             details.putExtra("single", false);
-            details.putExtra("isdark", Utils.isChemeDark(Statics.color1));
+            details.putExtra("isdark", Statics.isLight);
             details.putExtra("hasschema", parser.isHasColorSchema());
             startActivity(details);
         } catch (Exception e) {//ErrorLogging
@@ -613,6 +591,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
     private void closeActivity() {
         hideProgressDialog();
         finish();
+        overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
     }
 
     private void hideProgressDialog() {
@@ -637,17 +616,6 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-      /*  int i = v.getId();
-        if (i == R.id.inputSearch) {
-            if (isLeftPostition){
-                moveToCenter();
-                isLeftPostition = false;
-            }
-            else {
-                moveToLeft();
-                isLeftPostition = true;
-            }
-        }*/
     }
 
     /**

@@ -95,7 +95,7 @@
     <string name="romanblack_multicontacts_alert_gps_not_available">GPS service is not available.</string>
     <string name="romanblack_multicontacts_alert_wait_for_gps">Wait for initialization GPS service.</string>
     <string name="common_upper_cancel_q">Cancel</string>
-    <string name="multicontacts_search_person">Search by contact info</string>
+    <string name="multicontacts_search_person">Search contacts …</string>
     <string name="multicontacts_add_to_phonebook">Add to Contacts</string>
     <string name="multicontacts_webview_title">Contacts</string>
     <string name="multicontacts_list_share">Share</string>

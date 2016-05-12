@@ -11,15 +11,21 @@
 package com.ibuildapp.romanblack.MultiContactsPlugin.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.appbuilder.sdk.android.Utils;
 import com.ibuildapp.romanblack.MultiContactsPlugin.R;
+import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.PluginData;
 import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.Statics;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -30,6 +36,7 @@ public class GroupContactsAdapter extends BaseAdapter {
     private final boolean isDark;
     List<String> cats;
     private LayoutInflater inflater;
+    private HashMap<String, Integer> counts;
 
     /**
      * Constructs new GroupContactsAdapter with given params.
@@ -41,6 +48,7 @@ public class GroupContactsAdapter extends BaseAdapter {
         this.cats = cats;
         this.isDark = isDark;
         inflater = LayoutInflater.from(context);
+        counts = PluginData.getInstance().getCategoriesCount();
     }
 
     public int getCount() {
@@ -70,46 +78,26 @@ public class GroupContactsAdapter extends BaseAdapter {
 
         // text
         TextView name = (TextView) row.findViewById(R.id.romanblack_multicontacts_person_item);
+        TextView personCount = (TextView) row.findViewById(R.id.gc_persons_count);
+        View separator = row.findViewById(R.id.gc_item_separator);
+
         name.setText(cats.get(position));
+        String itemCount = counts.containsKey(cats.get(position))?String.valueOf(counts.get(cats.get(position))):"";
+        personCount.setText(itemCount);
+
         name.setTextColor(Statics.color3);
-        if ((position > 0) && (position < (cats.size() - 1))) {
-            name.setPadding(5, 4, 0, 4);
-        }
+        personCount.setTextColor(Statics.color3);
 
-        // arrow
         ImageView img = (ImageView) row.findViewById(R.id.romanblack_multicontacts_details_arrow);
-        img.setImageResource(R.drawable.romanblack_multicontacts_arrow_light);
-
-        // background
-        if (cats.size() == 1) {
-            if (isDark) {
-                row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowsingle_light);
-            } else {
-                row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowsingle_dark);
-            }
-
-        } else {
-            if (position == 0) {
-                if (isDark) {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowfirst_light);
-                } else {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowfirst_dark);
-                }
-            } else if (position == cats.size() - 1) {
-                if (isDark) {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowlast_light);
-                } else {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowlast_dark);
-                }
-            } else {
-                if (isDark) {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowmiddle_light);
-                } else {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowmiddle_dark);
-                }
-            }
+        if (isDark) {
+            separator.setBackgroundColor(Color.parseColor("#4D000000"));
+        }  else  {
+            separator.setBackgroundColor(Color.parseColor("#4DFFFFFF"));
         }
 
+        img.setVisibility(View.VISIBLE);
+        img.setBackgroundResource(R.drawable.gc_members);
+        img.getBackground().setColorFilter(Statics.color3, PorterDuff.Mode.MULTIPLY);
         return row;
     }
 }

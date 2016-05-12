@@ -31,6 +31,7 @@ public class EntityParser {
     private int color3 = Color.parseColor("#fff7a2");
     private int color4 = Color.parseColor("#ffffff");
     private int color5 = Color.parseColor("#bbbbbb");
+    private boolean isLight = false;
     private boolean hasColorSchema = true;
     private String xmlData = null;
     private ArrayList<Contact> contacts = null;
@@ -94,6 +95,14 @@ public class EntityParser {
      */
     public int getColor5() {
         return color5;
+    }
+
+    public boolean isLight() {
+        return isLight;
+    }
+
+    public void setLight(boolean light) {
+        isLight = light;
     }
 
     /**
@@ -167,6 +176,13 @@ public class EntityParser {
             if (localName.equalsIgnoreCase("color5")) {
                 try {
                     color5 = Color.parseColor(sb.toString().trim());
+                } catch (Exception ex) {
+                }
+            }
+
+            if (localName.equalsIgnoreCase("isLight")) {
+                try {
+                    isLight = Integer.valueOf(sb.toString().trim())>=1;
                 } catch (Exception ex) {
                 }
             }

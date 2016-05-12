@@ -11,6 +11,8 @@
 package com.ibuildapp.romanblack.MultiContactsPlugin.adapters;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,7 +73,7 @@ public class ContactDetailsAdapter extends ArrayAdapter<Contact> {
         public TextView title;
         public TextView description;
         public ImageView img;
-        public ImageView imgArrow;
+        public View separator;
     }
 
     @Override
@@ -96,75 +98,49 @@ public class ContactDetailsAdapter extends ArrayAdapter<Contact> {
             holder.title = (TextView) convertView.findViewById(R.id.romanblack_multicontacts_details_title);
             holder.description = (TextView) convertView.findViewById(R.id.romanblack_multicontacts_details_description);
             holder.img = (ImageView) convertView.findViewById(R.id.romanblack_multicontacts_details_imgview);
-            holder.imgArrow = (ImageView) convertView.findViewById(R.id.romanblack_multicontacts_details_arrow);
+            holder.separator = convertView.findViewById(R.id.gc_item_separator);
+
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.imgArrow.setBackgroundResource(R.drawable.romanblack_multicontacts_arrow_light);
-
         switch (contacts.get(position).getType()) {
             case 0:
-                holder.img.setImageResource(R.drawable.romanblack_multicontacts_contactico);
+                holder.img.setImageBitmap(Statics.appyColorFilterForResource(getContext(), R.drawable.romanblack_multicontacts_contactico, Statics.color3, PorterDuff.Mode.MULTIPLY));
                 holder.description.setText(contacts.get(position).getDescription());
-                holder.imgArrow.setVisibility(View.GONE);
                 break;
             case 1:
-                holder.img.setImageResource(R.drawable.romanblack_multicontacts_phoneico);
+                holder.img.setImageBitmap(Statics.appyColorFilterForResource(getContext(), R.drawable.gc_call_white, Statics.color3, PorterDuff.Mode.MULTIPLY));
+
                 holder.description.setText(contacts.get(position).getDescription());
                 break;
             case 2:
-                holder.img.setImageResource(R.drawable.romanblack_multicontacts_emailico);
+                holder.img.setImageBitmap(Statics.appyColorFilterForResource(getContext(), R.drawable.gc_email_white, Statics.color3, PorterDuff.Mode.MULTIPLY));
                 holder.description.setText(contacts.get(position).getDescription());
                 break;
             case 3:
-                holder.img.setImageResource(R.drawable.romanblack_multicontacts_webico);
+                holder.img.setImageBitmap(Statics.appyColorFilterForResource(getContext(), R.drawable.gc_www_white, Statics.color3, PorterDuff.Mode.MULTIPLY));
                 holder.description.setText(contacts.get(position).getDescription());
                 break;
             case 4:
-                holder.img.setImageResource(R.drawable.romanblack_multicontacts_mapico);
+                holder.img.setImageBitmap(Statics.appyColorFilterForResource(getContext(), R.drawable.gc_location_white, Statics.color3, PorterDuff.Mode.MULTIPLY));
                 holder.description.setText(contacts.get(position).getDescription());
                 break;
         }
-        holder.img.setScaleType(ScaleType.FIT_XY);
+        if (isDark)
+            holder.separator.setBackgroundColor(Color.parseColor("#4D000000"));
+          else
+            holder.separator.setBackgroundColor(Color.parseColor("#4DFFFFFF"));
+
+        if (position == contacts.size() - 1)
+            holder.separator.setVisibility(View.INVISIBLE);
+        else holder.separator.setVisibility(View.VISIBLE);
+
         holder.title.setText(contacts.get(position).getTitle());
         holder.title.setTextColor(Statics.color3);
         holder.description.setTextColor(Statics.color3);
         holder.title.setVisibility(View.GONE);
-
-        // background
-        if (contacts.size() == 1) {
-            if (isDark) {
-                convertView.setBackgroundResource(R.drawable.romanblack_multicontacts_rowsingle_light);
-            } else {
-                convertView.setBackgroundResource(R.drawable.romanblack_multicontacts_rowsingle_dark);
-            }
-
-        } else {
-            if (position == 0) {
-                if (isDark) {
-                    convertView.setBackgroundResource(R.drawable.romanblack_multicontacts_rowfirst_light);
-                } else {
-                    convertView.setBackgroundResource(R.drawable.romanblack_multicontacts_rowfirst_dark);
-                }
-
-            } else if (position == contacts.size() - 1) {
-                if (isDark) {
-                    convertView.setBackgroundResource(R.drawable.romanblack_multicontacts_rowlast_light);
-                } else {
-                    convertView.setBackgroundResource(R.drawable.romanblack_multicontacts_rowlast_dark);
-                }
-
-            } else {
-                if (isDark) {
-                    convertView.setBackgroundResource(R.drawable.romanblack_multicontacts_rowmiddle_light);
-                } else {
-                    convertView.setBackgroundResource(R.drawable.romanblack_multicontacts_rowmiddle_dark);
-                }
-            }
-        }
-
         return convertView;
     }
 }

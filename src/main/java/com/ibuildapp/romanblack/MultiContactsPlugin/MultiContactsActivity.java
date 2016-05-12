@@ -21,6 +21,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
@@ -153,18 +154,29 @@ public class MultiContactsActivity extends AppBuilderModuleMain {
         }
     };
     private String category;
+    private View separator;
+    private View backSeparator;
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
+    }
 
     @Override
     public void create() {
         try {
             setContentView(R.layout.romanblack_multicontacts_main);
-            setTopBarLeftButtonText(getResources().getString(R.string.common_back_upper), true, new View.OnClickListener() {
+
+            setTopBarLeftButtonTextAndColor(getResources().getString(R.string.common_back_upper), getResources().getColor(android.R.color.black), true, new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     finish();
                     return;
                 }
             });
+            setTopBarTitleColor(getResources().getColor(android.R.color.black));
+            setTopBarBackgroundColor(Statics.color1);
 
             LinearLayout inputSearchLayout = (LinearLayout) findViewById(R.id.multicontacts_search_layout);
             inputSearchLayout.setVisibility(View.GONE);
@@ -186,6 +198,15 @@ public class MultiContactsActivity extends AppBuilderModuleMain {
 
             root = (LinearLayout) findViewById(R.id.romanblack_multicontacts_main_root);
             listView = (ListView) findViewById(R.id.romanblack_multicontacts_list);
+            separator = findViewById(R.id.gc_head_separator);
+            backSeparator = findViewById(R.id.gc_back_separator);
+
+            backSeparator.setBackgroundColor(Statics.color1);
+            if (Statics.isLight) {
+                separator.setBackgroundColor(Color.parseColor("#4d000000"));
+            } else {
+                separator.setBackgroundColor(Color.parseColor("#4dFFFFFF"));
+            }
 
             handler.sendEmptyMessage(SET_ROOT_BACKGROUND);
         } catch (Exception e) {
@@ -223,7 +244,7 @@ public class MultiContactsActivity extends AppBuilderModuleMain {
             MultiContactsAdapter adapter = new MultiContactsAdapter(this, neededPersons, isChemeDark(Statics.color1));
             listView.setDivider(null);
             listView.setAdapter(adapter);
-            listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
+            //listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
 
             listView.setOnItemClickListener(new OnItemClickListener() {
                 public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -257,6 +278,7 @@ public class MultiContactsActivity extends AppBuilderModuleMain {
             details.putExtra("isdark", isChemeDark(Statics.color1));
             details.putExtra("hasschema", PluginData.getInstance().isHasColorSchema());
             startActivity(details);
+            overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
         } catch (Exception e) {//ErrorLogging
         }
     }

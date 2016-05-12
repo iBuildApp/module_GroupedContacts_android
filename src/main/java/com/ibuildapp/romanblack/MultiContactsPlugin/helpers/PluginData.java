@@ -23,6 +23,7 @@ public class PluginData {
     private static PluginData ourInstance = new PluginData();
     private List<Person> persons;
     private List<String> categories;
+    private HashMap<String, Integer> categoriesCount;
     private boolean hasColorSchema;
 
     /**
@@ -116,4 +117,32 @@ public class PluginData {
     public List<Person> getPersons() {
         return persons;
     }
+
+
+
+    public void prepareCounts() {
+        for (String category :categories) {
+            int count = 0;
+            for (Person p : persons) {
+
+                String c = p.getCategory();
+                if (c != null && c.equals(category)) {
+                    count++;
+                }
+            }
+
+            if (categoriesCount == null)
+                categoriesCount = new HashMap<>();
+
+            categoriesCount.put(category, count);
+        }
+    }
+    public HashMap<String, Integer> getCategoriesCount() {
+        return categoriesCount;
+    }
+
+    public void setCategoriesCount(HashMap<String, Integer> categoriesCount) {
+        this.categoriesCount = categoriesCount;
+    }
+
 }

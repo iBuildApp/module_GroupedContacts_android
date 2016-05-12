@@ -11,12 +11,15 @@
 package com.ibuildapp.romanblack.MultiContactsPlugin.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.appbuilder.sdk.android.Utils;
 import com.ibuildapp.romanblack.MultiContactsPlugin.entities.Person;
 import com.ibuildapp.romanblack.MultiContactsPlugin.R;
 import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.Statics;
@@ -75,41 +78,28 @@ public class MultiContactsAdapter extends BaseAdapter {
         TextView name = (TextView) row.findViewById(R.id.romanblack_multicontacts_person_item);
         name.setText(persons.get(arg0).getName());
         name.setTextColor(Statics.color3);
-        if ((arg0 > 0) && (arg0 < (persons.size() - 1))) {
-            name.setPadding(5, 4, 0, 4);
-        }
+
+        View separator = row.findViewById(R.id.gc_item_separator);
 
         // arrow
         ImageView img = (ImageView) row.findViewById(R.id.romanblack_multicontacts_details_arrow);
-        img.setImageResource(R.drawable.romanblack_multicontacts_arrow_light);
+        img.setVisibility(View.INVISIBLE);
+        if (isDark) {
+            separator.setBackgroundColor(Color.parseColor("#4D000000"));
+        }  else  {
+            separator.setBackgroundColor(Color.parseColor("#4DFFFFFF"));
+        }
+
+        if (Utils.isChemeDark(Statics.color3))
+            img.setBackgroundResource(R.drawable.gc_members_dark);
+        else
+            img.setBackgroundResource(R.drawable.gc_members);
 
         // background
         if (persons.size() == 1) {
-            if (isDark) {
-                row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowsingle_light);
-            } else {
-                row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowsingle_dark);
-            }
+
         } else {
-            if (arg0 == 0) {
-                if (isDark) {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowfirst_light);
-                } else {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowfirst_dark);
-                }
-            } else if (arg0 == persons.size() - 1) {
-                if (isDark) {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowlast_light);
-                } else {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowlast_dark);
-                }
-            } else {
-                if (isDark) {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowmiddle_light);
-                } else {
-                    row.setBackgroundResource(R.drawable.romanblack_multicontacts_rowmiddle_dark);
-                }
-            }
+
         }
 
         return row;

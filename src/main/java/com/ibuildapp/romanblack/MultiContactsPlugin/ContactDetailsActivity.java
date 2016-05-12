@@ -43,6 +43,7 @@ import com.appbuilder.sdk.android.AppBuilderModuleMain;
 import com.appbuilder.sdk.android.DialogSharing;
 import com.appbuilder.sdk.android.Utils;
 import com.appbuilder.sdk.android.Widget;
+import com.bumptech.glide.Glide;
 import com.ibuildapp.romanblack.MultiContactsPlugin.adapters.ContactDetailsAdapter;
 import com.ibuildapp.romanblack.MultiContactsPlugin.entities.Contact;
 import com.ibuildapp.romanblack.MultiContactsPlugin.entities.Person;
@@ -128,6 +129,10 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
             }
         }
     };
+    private View headSeparator;
+    private View bottomSeparator;
+    private View imageBottom;
+    private TextView personName;
 
     @Override
     public void create() {
@@ -150,13 +155,17 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
             setTopBarTitle(widget.getTitle());
 
             Boolean single = currentIntent.getBooleanExtra("single", true);
-            String buttonTitle = single? getResources().getString(R.string.common_home_upper): getResources().getString(R.string.common_back_upper);
-            setTopBarLeftButtonText(buttonTitle, true, new View.OnClickListener() {
+
+            setTopBarLeftButtonTextAndColor(single? getResources().getString(R.string.common_home_upper): getResources().getString(R.string.common_back_upper),
+                    getResources().getColor(android.R.color.black), true, new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     finish();
+                    return;
                 }
             });
+            setTopBarTitleColor(getResources().getColor(android.R.color.black));
+            setTopBarBackgroundColor(Statics.color1);
 
             if((Boolean.TRUE.equals(widget.getParameter(PARAM_SEND_MAIL))) ||
                     (Boolean.TRUE.equals(widget.getParameter(PARAM_SEND_SMS))) ||
@@ -165,7 +174,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                 ImageView shareButton = (ImageView) getLayoutInflater().inflate(R.layout.romanblack_multicontacts_share_btn, null);
                 shareButton.setLayoutParams(new LinearLayout.LayoutParams((int) (29 * getResources().getDisplayMetrics().density), (int) (39 * getResources().getDisplayMetrics().density)));
                 shareButton.setColorFilter(navBarDesign.itemDesign.textColor);
-                setTopBarRightButton(shareButton, getString(R.string.multicontacts_list_share), new View.OnClickListener() {
+                setTopBarRightButton(shareButton, getString(R.string.multicontacts_list_share),  new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         DialogSharing.Configuration.Builder sharingDialogBuilder = new DialogSharing.Configuration.Builder();
@@ -257,30 +266,24 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
             if (contacts != null) {
                 avatarImage = (ImageView) findViewById(R.id.romanblack_multicontacts_details_avatar);
 
-                if (person.hasAvatar()) {
-                    avatarImage.setImageResource(R.drawable.romanblack_multicontacts_contactico);
-                    addShadow(avatarImage);
-                    File avatarFile = new File(cacheAvavtarFile);
-                    if (avatarFile.exists()) {
-                        avatarImage.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(avatarFile)));
-                        addShadow(avatarImage);
-                    } else {
-                        if (isOnline) {
-                            ImageDownloadTask dt = new ImageDownloadTask();
-                            dt.execute(person);
-                        } else {
-                            avatarImage.setVisibility(View.GONE);
-                        }
-                    }
+                avatarImage.setImageResource(R.drawable.gc_profile_avatar);
+                if (person.hasAvatar() && isOnline) {
+                    avatarImage.setVisibility(View.VISIBLE);
+                    Glide.with(this).load(person.getAvatarUrl()).dontAnimate().into(avatarImage);
                 } else {
-                    avatarImage.setVisibility(View.GONE);
+                    avatarImage.setVisibility(View.VISIBLE);
+                    avatarImage.setImageResource(R.drawable.gc_profile_avatar);
                 }
 
-                neededContacts = new ArrayList<Contact>();
+                String name = "";
+                neededContacts = new ArrayList<>();
                 for (Iterator<Contact> iter = contacts.iterator(); iter.hasNext(); ) {
                     Contact con = iter.next();
                     if ((con.getType() == 5) || (con.getDescription().length() == 0)) {
                     } else {
+                        if (con.getType() == 0){
+                            name = con.getDescription();
+                        }else
                         neededContacts.add(con);
                     }
                 }
@@ -289,6 +292,31 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                     handler.sendEmptyMessage(THERE_IS_NO_CONTACT_DATA);
                     return;
                 }
+
+                headSeparator = findViewById(R.id.gc_head_separator);
+                bottomSeparator = findViewById(R.id.gc_bottom_separator);
+                imageBottom = findViewById(R.id.gc_image_bottom_layout);
+                personName = (TextView) findViewById(R.id.gc_details_description);
+
+                if("".equals(name))
+                    personName.setVisibility(View.GONE);
+                else {
+                    personName.setVisibility(View.VISIBLE);
+                    personName.setText(name);
+                    personName.setTextColor(Statics.color3);
+                }
+                if (Statics.isLight) {
+                    headSeparator.setBackgroundColor(Color.parseColor("#4d000000"));
+                    bottomSeparator.setBackgroundColor(Color.parseColor("#4d000000"));
+                } else {
+                    headSeparator.setBackgroundColor(Color.parseColor("#4dFFFFFF"));
+                    bottomSeparator.setBackgroundColor(Color.parseColor("#4dFFFFFF"));
+                }
+
+                if (Statics.color1 == Color.WHITE)
+                    imageBottom.setBackgroundColor(Color.parseColor("#33000000"));
+                else
+                    imageBottom.setBackgroundColor(Color.parseColor("#66FFFFFF"));
 
                 listcont = (ListView) findViewById(R.id.romanblack_multicontacts_details_listwiew);
                 listcont.setDivider(null);
@@ -775,5 +803,12 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
         }
+
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
     }
 }
