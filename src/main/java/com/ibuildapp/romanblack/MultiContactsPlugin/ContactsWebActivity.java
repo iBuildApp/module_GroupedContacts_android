@@ -10,6 +10,7 @@
  ****************************************************************************/
 package com.ibuildapp.romanblack.MultiContactsPlugin;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,9 +19,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.http.SslError;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -110,6 +113,26 @@ public class ContactsWebActivity extends AppBuilderModule {
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {
                     super.onPageStarted(view, url, favicon);
                     showProgressDialog();
+                }
+
+                @Override
+                public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(ContactsWebActivity.this);
+                    builder.setMessage(R.string.notification_error_ssl_cert_invalid);
+                    builder.setPositiveButton(ContactsWebActivity.this.getResources().getString(R.string.gc_continue), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            handler.proceed();
+                        }
+                    });
+                    builder.setNegativeButton(ContactsWebActivity.this.getResources().getString(R.string.gc_cancel), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            handler.cancel();
+                        }
+                    });
+                    final AlertDialog dialog = builder.create();
+                    dialog.show();
                 }
 
                 @Override

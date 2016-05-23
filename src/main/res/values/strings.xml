@@ -111,4 +111,8 @@
     <string name="multicontacts_site">Site</string>
     <string name="no_results_found">No results found</string>
     <string name="choose_email_client">Choose an Email client</string>
+
+    <string name="notification_error_ssl_cert_invalid">SSL error occurred. Would you like to proceed?</string>
+    <string name="gc_continue">Continue</string>
+    <string name="gc_cancel">Cancel</string>
 </resources>
