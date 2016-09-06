@@ -101,10 +101,10 @@ public class ContactDetailsAdapter extends ArrayAdapter<Contact> {
             holder.separator = convertView.findViewById(R.id.gc_item_separator);
 
             convertView.setTag(holder);
-        } else {
+        } else
             holder = (ViewHolder) convertView.getTag();
-        }
 
+        holder.description.setSingleLine(true);
         switch (contacts.get(position).getType()) {
             case 0:
                 holder.img.setImageBitmap(Statics.appyColorFilterForResource(getContext(), R.drawable.romanblack_multicontacts_contactico, Statics.color3, PorterDuff.Mode.MULTIPLY));
@@ -126,6 +126,7 @@ public class ContactDetailsAdapter extends ArrayAdapter<Contact> {
             case 4:
                 holder.img.setImageBitmap(Statics.appyColorFilterForResource(getContext(), R.drawable.gc_location_white, Statics.color3, PorterDuff.Mode.MULTIPLY));
                 holder.description.setText(contacts.get(position).getDescription());
+                holder.description.setSingleLine(false);
                 break;
         }
         if (isDark)
