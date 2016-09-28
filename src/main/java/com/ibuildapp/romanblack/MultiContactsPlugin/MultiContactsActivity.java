@@ -21,7 +21,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
@@ -166,7 +165,7 @@ public class MultiContactsActivity extends AppBuilderModuleMain {
     @Override
     public void create() {
         try {
-            setContentView(R.layout.romanblack_multicontacts_main);
+            setContentView(R.layout.grouped_contacts_main);
 
             setTopBarLeftButtonTextAndColor(getResources().getString(R.string.common_back_upper), getResources().getColor(android.R.color.black), true, new View.OnClickListener() {
                 @Override
@@ -178,7 +177,7 @@ public class MultiContactsActivity extends AppBuilderModuleMain {
             setTopBarTitleColor(getResources().getColor(android.R.color.black));
             setTopBarBackgroundColor(Statics.color1);
 
-            LinearLayout inputSearchLayout = (LinearLayout) findViewById(R.id.multicontacts_search_layout);
+            LinearLayout inputSearchLayout = (LinearLayout) findViewById(R.id.grouped_contacts_search_layout);
             inputSearchLayout.setVisibility(View.GONE);
 
             resources = getResources();
@@ -196,8 +195,8 @@ public class MultiContactsActivity extends AppBuilderModuleMain {
 
             cachePath = widget.getCachePath() + "/contacts-" + widget.getOrder();
 
-            root = (LinearLayout) findViewById(R.id.romanblack_multicontacts_main_root);
-            listView = (ListView) findViewById(R.id.romanblack_multicontacts_list);
+            root = (LinearLayout) findViewById(R.id.grouped_contacts_main_root);
+            listView = (ListView) findViewById(R.id.grouped_contacts_list);
             separator = findViewById(R.id.gc_head_separator);
             backSeparator = findViewById(R.id.gc_back_separator);
 
@@ -231,7 +230,7 @@ public class MultiContactsActivity extends AppBuilderModuleMain {
     private void showPersons() {
         try {
             persons = PluginData.getInstance().getPersons();
-            neededPersons = new ArrayList<Person>();
+            neededPersons = new ArrayList<>();
             for (Iterator<Person> it = persons.iterator(); it.hasNext();) {
                 Person per = it.next();
                 if (per.hasName()) {

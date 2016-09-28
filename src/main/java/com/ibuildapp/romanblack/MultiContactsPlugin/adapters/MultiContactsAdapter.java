@@ -34,7 +34,7 @@ public class MultiContactsAdapter extends BaseAdapter {
 
     private Context ctx = null;
     private LayoutInflater layoutInflater = null;
-    private List<Person> persons = new ArrayList<Person>();
+    private List<Person> persons = new ArrayList<>();
     private boolean isDark;
 
     /**
@@ -72,17 +72,17 @@ public class MultiContactsAdapter extends BaseAdapter {
 
     public View getView(int arg0, View arg1, ViewGroup arg2) {
         View row = arg1;
-        row = (row == null) ? layoutInflater.inflate(R.layout.romanblack_multicontacts_person_item, null) : row;
+        row = (row == null) ? layoutInflater.inflate(R.layout.grouped_contacts_person_item, null) : row;
 
         // text
-        TextView name = (TextView) row.findViewById(R.id.romanblack_multicontacts_person_item);
+        TextView name = (TextView) row.findViewById(R.id.grouped_contacts_person_text);
         name.setText(persons.get(arg0).getName());
         name.setTextColor(Statics.color3);
 
-        View separator = row.findViewById(R.id.gc_item_separator);
+        View separator = row.findViewById(R.id.grouped_contacts_person_separator);
 
         // arrow
-        ImageView img = (ImageView) row.findViewById(R.id.romanblack_multicontacts_details_arrow);
+        ImageView img = (ImageView) row.findViewById(R.id.grouped_contacts_person_arrow);
         img.setVisibility(View.INVISIBLE);
         if (isDark) {
             separator.setBackgroundColor(Color.parseColor("#4D000000"));
@@ -94,13 +94,6 @@ public class MultiContactsAdapter extends BaseAdapter {
             img.setBackgroundResource(R.drawable.gc_members_dark);
         else
             img.setBackgroundResource(R.drawable.gc_members);
-
-        // background
-        if (persons.size() == 1) {
-
-        } else {
-
-        }
 
         return row;
     }

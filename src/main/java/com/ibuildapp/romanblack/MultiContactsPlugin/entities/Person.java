@@ -25,7 +25,7 @@ public class Person implements Serializable {
      * Constructs new person.
      */
     public Person() {
-        contacts = new ArrayList<Contact>();
+        contacts = new ArrayList<>();
     }
     
     private ArrayList<Contact> contacts = null;

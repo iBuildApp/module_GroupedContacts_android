@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/grouped_contacts_details_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/gc_head_separator"
+            android:layout_width="match_parent"
+            android:layout_height="1px" />
+
+        <LinearLayout
+            android:id="@+id/gc_image_bottom_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <com.ibuildapp.romanblack.MultiContactsPlugin.views.CircularImageView
+                android:id="@+id/grouped_contacts_details_avatar"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_margin="20dp" />
+
+            <TextView
+                android:id="@+id/gc_details_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:gravity="center_horizontal"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/gc_bottom_separator"
+            android:layout_width="match_parent"
+            android:layout_height="1px" />
+
+        <ListView
+            android:id="@+id/grouped_contacts_details_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+</LinearLayout>

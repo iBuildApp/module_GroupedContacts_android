@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFF">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/grouped_contacts_map_layout">
+
+            <LinearLayout
+                android:id="@+id/map_main_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"/>
+
+            <LinearLayout
+                android:id="@+id/grouped_contacts_map_bottom_panel"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_gravity="bottom"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="#33000000" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="#E6FFFFFF">
+
+                    <LinearLayout
+                        android:id="@+id/grouped_contacts_map_back_to_my_location"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:gravity="center_vertical|left">
+                        <View
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_marginLeft="15dp"
+                            android:background="@drawable/gc_map_location" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/grouped_contacts_map_user_direction"
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:gravity="center_vertical|right">
+
+                        <View
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:background="@drawable/gc_map_direction"
+                            android:layout_marginRight="15dp"/>
+
+                    </LinearLayout>
+                </RelativeLayout>
+            </LinearLayout>
+        </FrameLayout>
+    </FrameLayout>
+</LinearLayout>

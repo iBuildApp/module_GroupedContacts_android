@@ -10,32 +10,22 @@
  ****************************************************************************/
 package com.ibuildapp.romanblack.MultiContactsPlugin;
 
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentProviderOperation;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
-import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
@@ -43,13 +33,14 @@ import com.appbuilder.sdk.android.AppBuilderModuleMain;
 import com.appbuilder.sdk.android.DialogSharing;
 import com.appbuilder.sdk.android.Utils;
 import com.appbuilder.sdk.android.Widget;
+import com.appbuilder.sdk.android.tools.NetworkUtils;
 import com.bumptech.glide.Glide;
 import com.ibuildapp.romanblack.MultiContactsPlugin.adapters.ContactDetailsAdapter;
 import com.ibuildapp.romanblack.MultiContactsPlugin.entities.Contact;
 import com.ibuildapp.romanblack.MultiContactsPlugin.entities.Person;
 import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.Statics;
+import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.ViewUtils;
 import com.ibuildapp.romanblack.MultiContactsPlugin.views.CallDialog;
-import com.ibuildapp.romanblack.MultiContactsPlugin.views.ShadowDrawable;
 
 import org.apache.http.util.ByteArrayBuffer;
 
@@ -57,7 +48,6 @@ import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * This activity represents person details page.
@@ -68,27 +58,20 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
     private static final String PARAM_SEND_SMS = "send_sms";
     private static final String PARAM_ADD_CONTACT = "add_contact";
 
-    private static final int SHARE_EMAIL_ID = 0;
-    private static final int SHARE_SMS_ID = 1;
-    private boolean isOnline = false;
+    private static final int INITIALIZATION_FAILED = 3;
+    private static final int NEED_INTERNET_CONNECTION = 4;
+    private static final int HIDE_PROGRESS_DIALOG = 5;
+    private static final int THERE_IS_NO_CONTACT_DATA = 6;
+
     private Person person = null;
     private Widget widget = null;
     private ProgressDialog progressDialog = null;
-    private ListView listcont;
-    private ImageView avatarImage;
     private LinearLayout root;
-    static public String mBackground;
     private ArrayList<Contact> contacts;
     private ArrayList<Contact> neededContacts;
-    Dialog callDialog;
     private String cachePath = "";
-    private String cacheAvavtarFile = "";
     private String cacheBackgroundFile = "";
-    private boolean hasSchema = false;
-    final private int INITIALIZATION_FAILED = 3;
-    final private int NEED_INTERNET_CONNECTION = 4;
-    final private int HIDE_PROGRESS_DIALOG = 5;
-    final private int THERE_IS_NO_CONTACT_DATA = 6;
+
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message message) {
@@ -137,7 +120,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
     @Override
     public void create() {
         try {
-            setContentView(R.layout.romanblack_multicontacts_details);
+            setContentView(R.layout.grouped_contacts_details);
 
             Intent currentIntent = getIntent();
             Bundle store = currentIntent.getExtras();
@@ -161,7 +144,6 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                 @Override
                 public void onClick(View view) {
                     finish();
-                    return;
                 }
             });
             setTopBarTitleColor(getResources().getColor(android.R.color.black));
@@ -171,7 +153,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                     (Boolean.TRUE.equals(widget.getParameter(PARAM_SEND_SMS))) ||
                     (Boolean.TRUE.equals(widget.getParameter(PARAM_SEND_SMS)))) {
 
-                ImageView shareButton = (ImageView) getLayoutInflater().inflate(R.layout.romanblack_multicontacts_share_btn, null);
+                ImageView shareButton = (ImageView) getLayoutInflater().inflate(R.layout.grouped_contacts_share_button, null);
                 shareButton.setLayoutParams(new LinearLayout.LayoutParams((int) (29 * getResources().getDisplayMetrics().density), (int) (39 * getResources().getDisplayMetrics().density)));
                 shareButton.setColorFilter(navBarDesign.itemDesign.textColor);
                 setTopBarRightButton(shareButton, getString(R.string.multicontacts_list_share),  new View.OnClickListener() {
@@ -206,7 +188,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                             });
 
                         if(Boolean.TRUE.equals(widget.getParameter(PARAM_ADD_CONTACT)))
-                            sharingDialogBuilder.addCustomListener(R.string.multicontacts_add_to_phonebook, R.drawable.multicontacts_add_to_contacts, true, new DialogSharing.Item.OnClickListener() {
+                            sharingDialogBuilder.addCustomListener(R.string.multicontacts_add_to_phonebook, R.drawable.gc_add_to_contacts, true, new DialogSharing.Item.OnClickListener() {
                                 @Override
                                 public void onClick() {
                                     createNewContact(
@@ -222,11 +204,8 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
 
             }
 
-            hasSchema = store.getBoolean("hasschema");
+            boolean hasSchema = store.getBoolean("hasschema");
             cachePath = widget.getCachePath() + "/contacts-" + widget.getOrder();
-            if (person.hasAvatar()) {
-                cacheAvavtarFile = cachePath + "/" + Utils.md5(person.getAvatarUrl());
-            }
 
             contacts = person.getContacts();
 
@@ -234,42 +213,34 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                 setTitle(widget.getTitle());
             }
 
-            root = (LinearLayout) findViewById(R.id.romanblack_multicontacts_details_root);
+            root = (LinearLayout) findViewById(R.id.grouped_contacts_details_root);
 
             if (hasSchema) {
                 root.setBackgroundColor(Statics.color1);
-            } else {
-                if (widget.isBackgroundColor()) {
-                } else if (widget.isBackgroundURL()) {
-                    cacheBackgroundFile = cachePath + "/" + Utils.md5(widget.getBackgroundURL());
-                    File backgroundFile = new File(cacheBackgroundFile);
-                    if (backgroundFile.exists()) {
-                        root.setBackgroundDrawable(new BitmapDrawable(
-                                BitmapFactory.decodeStream(new FileInputStream(backgroundFile))));
-                    } else {
-                        BackgroundDownloadTask dt = new BackgroundDownloadTask();
-                        dt.execute(widget.getBackgroundURL());
-                    }
-                } else if (widget.isBackgroundInAssets()) {
-                    AssetManager am = this.getAssets();
+            } else  if (widget.isBackgroundURL()) {
+                cacheBackgroundFile = cachePath + "/" + Utils.md5(widget.getBackgroundURL());
+                File backgroundFile = new File(cacheBackgroundFile);
+                if (backgroundFile.exists()) {
                     root.setBackgroundDrawable(new BitmapDrawable(
-                            am.open(widget.getBackgroundURL())));
+                            BitmapFactory.decodeStream(new FileInputStream(backgroundFile))));
+                } else {
+                    BackgroundDownloadTask dt = new BackgroundDownloadTask();
+                    dt.execute(widget.getBackgroundURL());
                 }
-            }
-
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo ni = cm.getActiveNetworkInfo();
-            if (ni != null && ni.isConnectedOrConnecting()) {
-                isOnline = true;
+            } else if (widget.isBackgroundInAssets()) {
+                AssetManager am = this.getAssets();
+                root.setBackgroundDrawable(new BitmapDrawable(
+                        am.open(widget.getBackgroundURL())));
             }
 
             if (contacts != null) {
-                avatarImage = (ImageView) findViewById(R.id.romanblack_multicontacts_details_avatar);
+                ImageView avatarImage = (ImageView) findViewById(R.id.grouped_contacts_details_avatar);
 
                 avatarImage.setImageResource(R.drawable.gc_profile_avatar);
-                if (person.hasAvatar() && isOnline) {
+                if (person.hasAvatar() && NetworkUtils.isOnline(this)) {
                     avatarImage.setVisibility(View.VISIBLE);
-                    Glide.with(this).load(person.getAvatarUrl()).dontAnimate().into(avatarImage);
+                    Glide.with(this).load(person.getAvatarUrl())
+                            .placeholder(R.drawable.gc_profile_avatar).dontAnimate().into(avatarImage);
                 } else {
                     avatarImage.setVisibility(View.VISIBLE);
                     avatarImage.setImageResource(R.drawable.gc_profile_avatar);
@@ -277,14 +248,13 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
 
                 String name = "";
                 neededContacts = new ArrayList<>();
-                for (Iterator<Contact> iter = contacts.iterator(); iter.hasNext(); ) {
-                    Contact con = iter.next();
+                for (Contact con : contacts) {
                     if ((con.getType() == 5) || (con.getDescription().length() == 0)) {
                     } else {
                         if (con.getType() == 0){
                             name = con.getDescription();
                         }else
-                        neededContacts.add(con);
+                            neededContacts.add(con);
                     }
                 }
 
@@ -313,28 +283,25 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                     bottomSeparator.setBackgroundColor(Color.parseColor("#4dFFFFFF"));
                 }
 
-                if (Statics.color1 == Color.WHITE)
-                    imageBottom.setBackgroundColor(Color.parseColor("#33000000"));
-                else
-                    imageBottom.setBackgroundColor(Color.parseColor("#66FFFFFF"));
+                ViewUtils.setBackgroundLikeHeader(imageBottom, Statics.color1);
 
-                listcont = (ListView) findViewById(R.id.romanblack_multicontacts_details_listwiew);
-                listcont.setDivider(null);
+                ListView list = (ListView) findViewById(R.id.grouped_contacts_details_list_view);
+                list.setDivider(null);
 
                 ContactDetailsAdapter adapter = new ContactDetailsAdapter(ContactDetailsActivity.this,
-                        R.layout.romanblack_multicontacts_details_item,
+                        R.layout.grouped_contacts_details_item,
                         neededContacts, isChemeDark(Statics.color1));
-                listcont.setAdapter(adapter);
-                listcont.setOnItemClickListener(new OnItemClickListener() {
+                list.setAdapter(adapter);
+                list.setOnItemClickListener(new OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
-                        listViewonItemClick(position);
+                        listViewItemClick(position);
                     }
                 });
             }
 
             if (widget.hasParameter("add_contact")) {
-                HashMap<String, String> hm = new HashMap<String, String>();
+                HashMap<String, String> hm = new HashMap<>();
                 for (int i = 0; i < contacts.size(); i++) {
                     switch (contacts.get(i).getType()) {
                         case 0: {
@@ -358,7 +325,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                 addNativeFeature(NATIVE_FEATURES.ADD_CONTACT, null, hm);
             }
             if (widget.hasParameter("send_sms")) {
-                HashMap<String, String> hm = new HashMap<String, String>();
+                HashMap<String, String> hm = new HashMap<>();
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < contacts.size(); i++) {
                     sb.append(contacts.get(i).getDescription());
@@ -370,7 +337,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                 addNativeFeature(NATIVE_FEATURES.SMS, null, hm);
             }
             if (widget.hasParameter("send_mail")) {
-                HashMap<String, CharSequence> hm = new HashMap<String, CharSequence>();
+                HashMap<String, CharSequence> hm = new HashMap<>();
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < contacts.size(); i++) {
                     switch (contacts.get(i).getType()) {
@@ -409,24 +376,8 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
             }
 
         } catch (Exception e) {
-        }
-    }
-
-    private void addShadow(ImageView view) {
-        try {
-            Drawable drawable = view.getDrawable();
-
-            Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            drawable.draw(canvas);
-
-            if(Build.VERSION.SDK_INT >= 11)
-                view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-
-            view.setImageDrawable(new ShadowDrawable(getResources(), bitmap));
-        } catch(Exception exception) {
-            exception.printStackTrace();
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -439,7 +390,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
      *
      * @param position contact position
      */
-    private void listViewonItemClick(int position) {
+    private void listViewItemClick(int position) {
         try {//ErrorLogging
 
             int type = neededContacts.get(position).getType();
@@ -453,10 +404,11 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                     new CallDialog(this, phoneNumber, new CallDialog.ActionListener() {
                         @Override
                         public void onCall(DialogInterface dialog) {
+                            dialog.dismiss();
                             Intent callIntent = new Intent(Intent.ACTION_CALL);
                             callIntent.setData(Uri.parse("tel:" + phoneNumber));
                             startActivity(callIntent);
-                            dialog.dismiss();
+                            overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
                         }
 
                         @Override
@@ -481,6 +433,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                     emailIntent.setType("text/html");
                     emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{email});
                     startActivity(emailIntent);
+                    overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
                 }
                 break;
                 case 3: {
@@ -493,17 +446,21 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                     Intent intent = new Intent(this, ContactsWebActivity.class);
                     intent.putExtra("link", url);
                     startActivity(intent);
+                    overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
                 }
                 break;
                 case 4: {
-                    Intent intent = new Intent(this, ContactsMapActivity.class);
+                    Intent intent = new Intent(this, NativeMapActivity.class);
                     intent.putExtra("person", person);
                     startActivity(intent);
+                    overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
                 }
                 break;
             }
 
         } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -515,7 +472,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
      * @param emailID      contact email address to save
      */
     private void createNewContact(String name, String MobileNumber, String emailID) {
-        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
 
         ops.add(ContentProviderOperation.newInsert(
                 ContactsContract.RawContacts.CONTENT_URI)
@@ -570,27 +527,9 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
         }
     }
 
-    public void closeActivity() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
-        finish();
-    }
-
     private void hideProgress() {
         if (progressDialog != null) {
             progressDialog.dismiss();
-        }
-    }
-
-    /**
-     * Updates user avatar after it was downloaded.
-     */
-    private void updateAvatar() {
-        try {
-            avatarImage.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(cacheAvavtarFile)));
-            addShadow(avatarImage);
-        } catch (FileNotFoundException fNFEx) {
         }
     }
 
@@ -603,60 +542,10 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
     private boolean isChemeDark(int backColor) {
         int r = (backColor >> 16) & 0xFF;
         int g = (backColor >> 8) & 0xFF;
-        int b = (backColor >> 0) & 0xFF;
+        int b = (backColor) & 0xFF;
 
         double Y = (0.299 * r + 0.587 * g + 0.114 * b);
-        if (Y > 127) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * This class creates a background thread to download person avatar.
-     */
-    private class ImageDownloadTask extends AsyncTask<Person, String, Void> {
-
-        @Override
-        protected Void doInBackground(Person... arg0) {
-            try {
-                URL imageUrl = new URL(arg0[0].getAvatarUrl());
-                BufferedInputStream bis = new BufferedInputStream(imageUrl.openConnection().getInputStream());
-                ByteArrayBuffer baf = new ByteArrayBuffer(32);
-                int current = 0;
-                while ((current = bis.read()) != -1) {
-                    baf.append((byte) current);
-                }
-
-                File cacheAvatar = new File(cacheAvavtarFile);
-                if (!cacheAvatar.exists()) {
-                    new File(cachePath).mkdirs();
-                    cacheAvatar.createNewFile();
-                }
-
-                FileOutputStream fos = new FileOutputStream(cacheAvatar);
-                fos.write(baf.toByteArray());
-                fos.close();
-
-                publishProgress();
-            } catch (Exception e) {
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-
-            updateAvatar();
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-        }
+        return Y > 127;
     }
 
     /**
@@ -667,52 +556,9 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
             root.setBackgroundDrawable(new BitmapDrawable(
                     BitmapFactory.decodeStream(new FileInputStream(cacheBackgroundFile))));
         } catch (FileNotFoundException fNFEx) {
+            Log.e(TAG, fNFEx.getMessage());
+            fNFEx.printStackTrace();
         }
-    }
-
-    /**
-     * This menu contains "share via SMS" and "share via Email" buttons.
-     *
-     * @param menu
-     * @return
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // set menu items
-//        menu.add(0, SHARE_EMAIL_ID, Menu.NONE, getString(R.string.multicontacts_share_via_email));
-//        menu.add(0, SHARE_SMS_ID, Menu.NONE, getString(R.string.share_contact_via_sms));
-
-        return false;
-    }
-
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return false;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case SHARE_EMAIL_ID: {
-                String message = getContactInfo();
-                Intent email = new Intent(Intent.ACTION_SEND);
-                email.putExtra(Intent.EXTRA_TEXT, message);
-                email.setType("message/rfc822");
-                startActivity(Intent.createChooser(email, "Choose an Email client"));
-                break;
-            }
-            case SHARE_SMS_ID: {
-                Intent smsIntent = new Intent(Intent.ACTION_VIEW);
-
-                smsIntent.putExtra("sms_body", getContactInfo());
-                smsIntent.putExtra("address", "");
-                smsIntent.setType("vnd.android-dir/mms-sms");
-
-                startActivity(smsIntent);
-                break;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -721,29 +567,29 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
      * @return string person info
      */
     private String getContactInfo() {
-        String message = "";
+        String message;
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < contacts.size(); i++) {
             switch (contacts.get(i).getType()) {
                 case 0: {
-                    sb.append(getString(R.string.multicontacts_name) + ": ");
+                    sb.append(getString(R.string.multicontacts_name)).append(": ");
                 }
                 break;
                 case 1: {
-                    sb.append(getString(R.string.multicontacts_phone) + ": ");
+                    sb.append(getString(R.string.multicontacts_phone)).append(": ");
                 }
                 break;
                 case 2: {
-                    sb.append(getString(R.string.multicontacts_email) + ": ");
+                    sb.append(getString(R.string.multicontacts_email)).append(": ");
                 }
                 break;
                 case 3: {
-                    sb.append(getString(R.string.multicontacts_site) + ": ");
+                    sb.append(getString(R.string.multicontacts_site)).append(": ");
                 }
                 break;
                 case 4: {
-                    sb.append(getString(R.string.multicontacts_address) + ": ");
+                    sb.append(getString(R.string.multicontacts_address)).append(": ");
                 }
                 break;
             }
@@ -787,6 +633,8 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
 
                 publishProgress();
             } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             }
 
             return null;
@@ -803,7 +651,6 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
         }
-
     }
 
     @Override

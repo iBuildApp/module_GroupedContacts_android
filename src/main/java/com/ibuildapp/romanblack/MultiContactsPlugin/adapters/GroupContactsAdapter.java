@@ -20,7 +20,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.appbuilder.sdk.android.Utils;
 import com.ibuildapp.romanblack.MultiContactsPlugin.R;
 import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.PluginData;
 import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.Statics;
@@ -74,12 +73,12 @@ public class GroupContactsAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup viewGroup) {
         View row = convertView;
-        row = row == null ? inflater.inflate(R.layout.romanblack_multicontacts_person_item, null) : row;
+        row = row == null ? inflater.inflate(R.layout.grouped_contacts_person_item, null) : row;
 
         // text
-        TextView name = (TextView) row.findViewById(R.id.romanblack_multicontacts_person_item);
-        TextView personCount = (TextView) row.findViewById(R.id.gc_persons_count);
-        View separator = row.findViewById(R.id.gc_item_separator);
+        TextView name = (TextView) row.findViewById(R.id.grouped_contacts_person_text);
+        TextView personCount = (TextView) row.findViewById(R.id.grouped_contacts_person_count);
+        View separator = row.findViewById(R.id.grouped_contacts_person_separator);
 
         name.setText(cats.get(position));
         String itemCount = counts.containsKey(cats.get(position))?String.valueOf(counts.get(cats.get(position))):"";
@@ -88,7 +87,7 @@ public class GroupContactsAdapter extends BaseAdapter {
         name.setTextColor(Statics.color3);
         personCount.setTextColor(Statics.color3);
 
-        ImageView img = (ImageView) row.findViewById(R.id.romanblack_multicontacts_details_arrow);
+        ImageView img = (ImageView) row.findViewById(R.id.grouped_contacts_person_arrow);
         if (isDark) {
             separator.setBackgroundColor(Color.parseColor("#4D000000"));
         }  else  {

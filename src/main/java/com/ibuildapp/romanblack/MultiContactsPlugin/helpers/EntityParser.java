@@ -42,7 +42,7 @@ public class EntityParser {
      */
     public EntityParser() {
         this.xmlData = "";
-        this.contacts = new ArrayList<Contact>();
+        this.contacts = new ArrayList<>();
     }
 
     /**
@@ -51,7 +51,7 @@ public class EntityParser {
      */
     public EntityParser(String xmlData) {
         this.xmlData = xmlData;
-        this.contacts = new ArrayList<Contact>();
+        this.contacts = new ArrayList<>();
     }
 
     /**
@@ -119,7 +119,7 @@ public class EntityParser {
         public void startDocument() throws SAXException {
             super.startDocument();
 
-            EntityParser.this.persons = new ArrayList<Person>();
+            EntityParser.this.persons = new ArrayList<>();
         }
 
         @Override

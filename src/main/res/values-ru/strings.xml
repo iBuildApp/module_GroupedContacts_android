@@ -1,58 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="common_save_upper">Сохранить</string>
     <string name="common_cancel_upper">Отмена</string>
-    <string name="common_modify_upper">Изменить</string>
     <string name="common_yes_upper">Да</string>
-    <string name="common_no_upper">Нет</string>
-    <string name="common_loading_upper">Загрузка...</string>
-    <string name="common_registration_upper">Регистрация...</string>
+    <string name="common_loading_upper">Загрузка…</string>
     <string name="common_home_upper">Домой</string>
-    <string name="common_sign_up_upper">Регистрация</string>
-    <string name="common_sign_in_upper">Войти</string>
-    <string name="common_back">Назад</string>
     <string name="common_back_upper">Назад</string>
-    <string name="common_send_email_upper">отправить email</string>
-    <string name="common_email_upper">email</string>
-    <string name="common_email_upper_colon">email</string>
-    <string name="common_password_upper">Пароль</string>
-    <string name="common_log_in_upper">Логин</string>
-    <string name="common_log_in_upper_colon">Логин</string>
-    <string name="common_sharing_first_part">только что добавлен комментарий</string>
-    <string name="common_sharing_second_part">Изображение через</string>
-    <string name="common_sharing_third_part">Загрузить через iPhone/Android</string>
-    <string name="common_login_with_facebook_upper">Войти через Facebook</string>
-    <string name="common_login_with_twitter_upper">Войти через Twitter</string>
-    <string name="common__login_with_ibuildapp_upper">Войти через iBuildApp</string>
-    <string name="common_login_with_email_upper">Войти через Email</string>
-    <string name="common_emaillogin_use_email_upper">Использовать email для входа</string>
-    <string name="common_seconds">секунд</string>
-    <string name="common_a_minute_ago">минуту назад</string>
-    <string name="common_minutes">минут</string>
-    <string name="common_an_hour_ago">час назад</string>
-    <string name="common_hours">часов</string>
-    <string name="common_one_day">день</string>
-    <string name="common_days">дней</string>
-    <string name="common_date_just_now">Сейчас</string>
-    <string name="common_date_yesterday">Вчера</string>
-    <string name="common_account">Аккаунт</string>
-    <string name="common_tap_to_enter">Нажмите для входа</string>
-    <string name="common_clear_upper">Очистить</string>
-    <string name="common_done_upper">Завершить</string>
-    <string name="common_submit_upper">Отправить</string>
-    <string name="common_confirm_upper">Подтвердить</string>
-    <string name="common_address_upper_colon">Адрес:</string>
-    <string name="common_parking_upper_colon">Парковка</string>
-    <string name="common_add_to_calendar">Добавить в календарь</string>
-    <string name="common_get_direction">Получить направление</string>
-    <string name="common_date_upper">Дата</string>
-    <string name="common_time_upper">Время</string>
-    <string name="common_specify_upper">Определить</string>
-    <string name="common_firstname_upper">Имя</string>
-    <string name="common_lastname_upper">Фамилия</string>
-    <string name="common_registration_agreement">Нажимая кнопку «Зарегистрироваться», Вы принимаете условия
-        Пользовательского соглашения.
-    </string>
+
+
     <string name="alert_no_internet">Мобильный интернет отключен. Включите интернет, либо используйте WiFi</string>
     <string name="alert_cannot_init">Невозможно инициализировать плагин</string>
     <string name="alert_twitter_auth_error">Не удалось войти в Twitter</string>
@@ -106,4 +60,5 @@
     <string name="no_results_found">Результатов не найдено</string>
     <string name="multicontacts_list_share">Поделиться</string>
     <string name="choose_email_client">Выберите Email клиент</string>
+    <string name="grouped_contacts_map">Карта</string>
 </resources>

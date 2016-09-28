@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import com.ibuildapp.romanblack.MultiContactsPlugin.entities.Contact;
 import com.ibuildapp.romanblack.MultiContactsPlugin.R;
@@ -34,7 +33,7 @@ public class ContactDetailsAdapter extends ArrayAdapter<Contact> {
     public LayoutInflater inflater;
     public ArrayList<Contact> contacts;
     private boolean isDark;
-    private ArrayList<Integer> blockPositoins = new ArrayList<Integer>();
+    private ArrayList<Integer> blockPositoins = new ArrayList<>();
 
     /**
      * Constructs new ContactDetailsAdapter with given params.
@@ -94,12 +93,11 @@ public class ContactDetailsAdapter extends ArrayAdapter<Contact> {
 
         // UI links
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.romanblack_multicontacts_details_item, null, true);
-            holder.title = (TextView) convertView.findViewById(R.id.romanblack_multicontacts_details_title);
-            holder.description = (TextView) convertView.findViewById(R.id.romanblack_multicontacts_details_description);
-            holder.img = (ImageView) convertView.findViewById(R.id.romanblack_multicontacts_details_imgview);
-            holder.separator = convertView.findViewById(R.id.gc_item_separator);
-
+            convertView = inflater.inflate(R.layout.grouped_contacts_details_item, null, true);
+            holder.img = (ImageView) convertView.findViewById(R.id.grouped_contacts_details_item_image_view);
+            holder.title = (TextView) convertView.findViewById(R.id.grouped_contacts_details_item_title);
+            holder.description = (TextView) convertView.findViewById(R.id.grouped_contacts_details_item_description);
+            holder.separator = convertView.findViewById(R.id.grouped_contacts_details_item_separator);
             convertView.setTag(holder);
         } else
             holder = (ViewHolder) convertView.getTag();
@@ -107,12 +105,11 @@ public class ContactDetailsAdapter extends ArrayAdapter<Contact> {
         holder.description.setSingleLine(true);
         switch (contacts.get(position).getType()) {
             case 0:
-                holder.img.setImageBitmap(Statics.appyColorFilterForResource(getContext(), R.drawable.romanblack_multicontacts_contactico, Statics.color3, PorterDuff.Mode.MULTIPLY));
+                holder.img.setImageBitmap(Statics.appyColorFilterForResource(getContext(), R.drawable.gc_avatar, Statics.color3, PorterDuff.Mode.MULTIPLY));
                 holder.description.setText(contacts.get(position).getDescription());
                 break;
             case 1:
                 holder.img.setImageBitmap(Statics.appyColorFilterForResource(getContext(), R.drawable.gc_call_white, Statics.color3, PorterDuff.Mode.MULTIPLY));
-
                 holder.description.setText(contacts.get(position).getDescription());
                 break;
             case 2:

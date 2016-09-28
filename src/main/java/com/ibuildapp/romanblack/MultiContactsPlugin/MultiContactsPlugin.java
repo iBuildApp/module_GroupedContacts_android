@@ -10,7 +10,6 @@
  ****************************************************************************/
 package com.ibuildapp.romanblack.MultiContactsPlugin;
 
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -19,11 +18,7 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,6 +26,7 @@ import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -43,11 +39,12 @@ import com.appbuilder.sdk.android.Utils;
 import com.appbuilder.sdk.android.Widget;
 import com.ibuildapp.romanblack.MultiContactsPlugin.adapters.GroupContactsAdapter;
 import com.ibuildapp.romanblack.MultiContactsPlugin.adapters.MultiContactsAdapter;
-import com.ibuildapp.romanblack.MultiContactsPlugin.entities.Contact;
 import com.ibuildapp.romanblack.MultiContactsPlugin.entities.Person;
 import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.EntityParser;
 import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.PluginData;
 import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.Statics;
+import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.ViewUtils;
+
 import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.*;
@@ -61,10 +58,9 @@ import java.util.List;
 @StartUpActivity(moduleName = "GroupedContacts")
 public class MultiContactsPlugin extends AppBuilderModuleMain implements View.OnFocusChangeListener{
 
-    private static final String TAG = "com.ibuildapp.MultiContactsPlugin";
+    private static final String TAG = "MultiContactsPlugin";
 
     private static int positionLayoutCenterX;
-    private static int positionLayoutLeftX;
     private static boolean isLeftPostition = false;
 
     private final int INITIALIZATION_FAILED = 0;
@@ -78,13 +74,9 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
     private boolean backgroundLoaded = false;
     private String cachePath = "";
     private String cacheBackgroundFile = "";
-    private String cacheAvavtarFile = "";
     private ListView listView = null;
     private ProgressDialog progressDialog = null;
     private LinearLayout root = null;
-    ImageView avatarImage;
-    Dialog callDialog;
-    private Person person = null;
     private Widget widget = null;
     private ArrayList<Person> persons = null;
     private ArrayList<Person> neededPersons = null;
@@ -97,7 +89,6 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
     private RelativeLayout inputSearchLayout;
     private LinearLayout multicontactsSearchLayout;
     private LinearLayout moveLayout;
-    private ArrayList<Contact> neededContacts;
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -247,13 +238,16 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
 
                         handler.sendEmptyMessage(SET_ROOT_BACKGROUND);
                     } catch (Exception e) {
+                        Log.e(TAG, e.getMessage());
+                        e.printStackTrace();
                     }
                 }
             }.start();
         } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
-
 
     /**
      * Prepares page UI or starts ContactDetailsActivity if there is only one
@@ -273,11 +267,14 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                 details.putExtra("homebtn", true);
                 finish();
                 startActivity(details);
+                overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
                 return true;
             } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             }
         }
-        setContentView(R.layout.romanblack_multicontacts_main);
+        setContentView(R.layout.grouped_contacts_main);
 
         setTopBarTitle(TextUtils.isEmpty(widget.getTitle()) ? "" : widget.getTitle());
         setTopBarLeftButtonTextAndColor(getResources().getString(R.string.common_home_upper), getResources().getColor(android.R.color.black), true, new View.OnClickListener() {
@@ -289,7 +286,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
         });
         setTopBarTitleColor(getResources().getColor(android.R.color.black));
 
-        clearSearch = (ImageView) findViewById(R.id.multicontacts_delete_search);
+        clearSearch = (ImageView) findViewById(R.id.grouped_contacts_delete_search);
         separator = findViewById(R.id.gc_head_separator);
         backSeparator = findViewById(R.id.gc_back_separator);
 
@@ -303,24 +300,19 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
         clearSearch.setVisibility(View.INVISIBLE);
 
         resources = getResources();
-        inputSearchLayout = (RelativeLayout) findViewById(R.id.inputSearchLayout);
-        multicontactsSearchLayout = (LinearLayout) findViewById(R.id.multicontacts_search_layout);
-        moveLayout = (LinearLayout) findViewById(R.id.move_layout);
+        inputSearchLayout = (RelativeLayout) findViewById(R.id.grouped_contacts_input_search_layout);
+        multicontactsSearchLayout = (LinearLayout) findViewById(R.id.grouped_contacts_search_layout);
+        moveLayout = (LinearLayout) findViewById(R.id.grouped_contacts_move_layout);
 
         backSeparator.setBackgroundColor(Statics.color1);
-        if (Statics.isLight) {
+        if (Statics.isLight)
             separator.setBackgroundColor(Color.parseColor("#4d000000"));
-        } else {
-            separator.setBackgroundColor(Color.parseColor("#4dFFFFFF"));
-        }
-
-        if (Statics.color1 == Color.WHITE)
-            multicontactsSearchLayout.setBackgroundColor(Color.parseColor("#33000000"));
         else
-            multicontactsSearchLayout.setBackgroundColor(Color.parseColor("#66FFFFFF"));
+            separator.setBackgroundColor(Color.parseColor("#4dFFFFFF"));
 
+        ViewUtils.setBackgroundLikeHeader(multicontactsSearchLayout, Statics.color1);
         multicontactsSearchLayout.setVisibility(View.GONE);
-        searchContactsEditText = (EditText) findViewById(R.id.inputSearch);
+        searchContactsEditText = (EditText) findViewById(R.id.grouped_contacts_input_search);
         if (getPackageName().endsWith("p638839")) {
             searchContactsEditText.setHint("Search by Location");
         }
@@ -350,17 +342,16 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                                         cats,
                                         Statics.isLight);
 
-                    //    listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
                         listView.setAdapter(adapter);
 
                         listView.setOnItemClickListener(new OnItemClickListener() {
                             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                                showCategoryPersons(arg2, arg1);
+                                showCategoryPersons(arg2);
                             }
                         });
                     } else {
                         multicontactsSearchLayout.setVisibility(View.GONE);
-                        neededPersons = new ArrayList<Person>();
+                        neededPersons = new ArrayList<>();
                         neededPersons.addAll(persons);
                         MultiContactsAdapter adapter =
                                 new MultiContactsAdapter(
@@ -368,11 +359,10 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                                         neededPersons,
                                         Statics.isLight);
 
-                        //listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
                         listView.setAdapter(adapter);
                         listView.setOnItemClickListener(new OnItemClickListener() {
                             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                                showPersonDetails(arg2, arg1);
+                                showPersonDetails(arg2);
                             }
                         });
                         listView.setVisibility(View.VISIBLE);
@@ -387,7 +377,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                     }
 
                     List<Person> persons = PluginData.getInstance().searchByString(charSequence.toString());
-                    neededPersons = new ArrayList<Person>();
+                    neededPersons = new ArrayList<>();
                     neededPersons.addAll(persons);
                     if (neededPersons.size() == 0) {
                         noFoundText.setVisibility(View.VISIBLE);
@@ -399,12 +389,11 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                                         neededPersons,
                                         Statics.isLight);
 
-                        //listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
                         listView.setAdapter(adapter);
 
                         listView.setOnItemClickListener(new OnItemClickListener() {
                             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                                showPersonDetails(arg2, arg1);
+                                showPersonDetails(arg2);
                             }
                         });
 
@@ -423,8 +412,8 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
         searchContactsEditText.clearFocus();
         cachePath = widget.getCachePath() + "/contacts-" + widget.getOrder();
 
-        root = (LinearLayout) findViewById(R.id.romanblack_multicontacts_main_root);
-        listView = (ListView) findViewById(R.id.romanblack_multicontacts_list);
+        root = (LinearLayout) findViewById(R.id.grouped_contacts_main_root);
+        listView = (ListView) findViewById(R.id.grouped_contacts_list);
         listView.setCacheColorHint(Color.TRANSPARENT);
         listView.setDivider(null);
 
@@ -446,7 +435,6 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
 
     public void moveToLeft(){
         positionLayoutCenterX = moveLayout.getLeft();
-        positionLayoutLeftX = inputSearchLayout.getLeft();
         TranslateAnimation animation = new TranslateAnimation(0, -positionLayoutCenterX,
                 0.0f, 0.0f);
         animation.setDuration(500);
@@ -496,54 +484,55 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                 details.putExtra("isdark", Statics.isLight);
                 details.putExtra("hasschema", PluginData.getInstance().isHasColorSchema());
                 startActivity(details);
+                overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
                 finish();
-                return;
             } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             }
         } else {
             try {
                 List<String> categories = new ArrayList<>();
                 for (Person p : persons) {
                     String c = p.getCategory();
-                    if (c != null && !categories.contains(c)) {
+                    if (c != null && !categories.contains(c))
                         categories.add(c);
-                    }
                 }
 
                 if (categories.size() <= 1) {
                     multicontactsSearchLayout.setVisibility(View.GONE);
-                    neededPersons = new ArrayList<Person>();
+                    neededPersons = new ArrayList<>();
                     neededPersons.addAll(persons);
                     MultiContactsAdapter adapter = new MultiContactsAdapter(this,
                             neededPersons,
                             Statics.isLight);
-                   // listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
                     listView.setAdapter(adapter);
                     listView.setOnItemClickListener(new OnItemClickListener() {
                         public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                            showPersonDetails(arg2, arg1);
+                            showPersonDetails(arg2);
                         }
                     });
                     listView.setVisibility(View.VISIBLE);
                 } else {
                     multicontactsSearchLayout.setVisibility(View.VISIBLE);
-                    neededCategories = new ArrayList<String>();
+                    neededCategories = new ArrayList<>();
                     neededCategories.addAll(categories);
 
                     GroupContactsAdapter adapter = new GroupContactsAdapter(this,
                             neededCategories,
                             Statics.isLight);
                     listView.setAdapter(adapter);
-                    //listView.setSelector(R.drawable.romanblack_multicontacts_custom_background);
                     listView.setOnItemClickListener(new OnItemClickListener() {
                         public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                            showCategoryPersons(arg2, arg1);
+                            showCategoryPersons(arg2);
                         }
                     });
                     listView.setVisibility(View.VISIBLE);
                 }
                 handler.sendEmptyMessage(HIDE_PROGRESS_DIALOG);
             } catch (Exception ex) {
+                Log.e(TAG, ex.getMessage());
+                ex.printStackTrace();
             }
         }
     }
@@ -552,9 +541,8 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
      * Starts MultiContactsActivity to show persons of selected category.
      *
      * @param position selected category position
-     * @param view     seletcted subview of categories ListView
      */
-    private void showCategoryPersons(int position, View view) {
+    private void showCategoryPersons(int position) {
         try {
             Intent details = new Intent(this, MultiContactsActivity.class);
             details.putExtra("Widget", widget);
@@ -564,8 +552,9 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
             details.putExtra("hasschema", parser.isHasColorSchema());
             startActivity(details);
             overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
-
-        } catch (Exception e) {//ErrorLogging
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -573,9 +562,8 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
      * Starts ContactDetailsActivity to show details of selected person.
      *
      * @param position selected person position
-     * @param view     seletcted subview of persons ListView
      */
-    private void showPersonDetails(int position, View view) {
+    private void showPersonDetails(int position) {
         try {
             Intent details = new Intent(this, ContactDetailsActivity.class);
             details.putExtra("Widget", widget);
@@ -584,7 +572,10 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
             details.putExtra("isdark", Statics.isLight);
             details.putExtra("hasschema", parser.isHasColorSchema());
             startActivity(details);
-        } catch (Exception e) {//ErrorLogging
+            overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -611,6 +602,8 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
             backgroundLoaded = true;
             handler.sendEmptyMessage(SHOW_DATA);
         } catch (FileNotFoundException fNFEx) {
+            Log.e(TAG, fNFEx.getMessage());
+            fNFEx.printStackTrace();
         }
     }
 

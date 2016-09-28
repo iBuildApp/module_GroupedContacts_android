@@ -12,96 +12,62 @@ package com.ibuildapp.romanblack.MultiContactsPlugin;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.http.SslError;
 import android.os.Handler;
-import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
-import com.appbuilder.sdk.android.AppBuilderModule;
+import com.appbuilder.sdk.android.AppBuilderModuleMainAppCompat;
+import com.appbuilder.sdk.android.tools.NetworkUtils;
+import com.ibuildapp.romanblack.MultiContactsPlugin.helpers.Statics;
+import com.restfb.util.StringUtils;
 
 /**
  * This activity represents location web page for contacts with web page type
  * or route URL for contacts with location type.
  */
-public class ContactsWebActivity extends AppBuilderModule {
+public class ContactsWebActivity extends AppBuilderModuleMainAppCompat {
 
-    private final int INITIALIZATION_FAILED = 0;
-    private final int NEED_INTERNET_CONNECTION = 1;
-    private boolean isOnline = false;
-    private String link = "";
     private ProgressDialog progressDialog = null;
     private WebView webView = null;
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case INITIALIZATION_FAILED: {
-                    Toast.makeText(ContactsWebActivity.this, R.string.alert_cannot_init, Toast.LENGTH_LONG).show();
-                    new Handler().postDelayed(new Runnable() {
-                        public void run() {
-                            hideProgressDialog();
-                            finish();
-                        }
-                    }, 5000);
-                }
-                break;
-                case NEED_INTERNET_CONNECTION: {
-                    Toast.makeText(ContactsWebActivity.this, R.string.alert_no_internet,
-                            Toast.LENGTH_LONG).show();
-                    new Handler().postDelayed(new Runnable() {
-                        public void run() {
-                            hideProgressDialog();
-                            finish();
-                        }
-                    }, 5000);
-                }
-                break;
-            }
-        }
-    };
 
     @Override
     public void create() {
         try {
+            setContentView(R.layout.grouped_contacts_web);
+            setTopBarTitle(getString(R.string.multicontacts_webview_title));
 
-            setContentView(R.layout.romanblack_multicontacts_web);
-            setTitle(getString(R.string.multicontacts_webview_title));
+            setTopBarLeftButtonTextAndColor(getResources().getString(R.string.common_back_upper),
+                    getResources().getColor(android.R.color.black), true, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            finish();
+                        }
+                    });
+            setTopBarTitleColor(getResources().getColor(android.R.color.black));
+            setTopBarBackgroundColor(Statics.color1);
 
             Intent currentIntent = getIntent();
+            String link = currentIntent.getStringExtra("link");
 
-            link = currentIntent.getStringExtra("link");
-
-            if (link == null) {
-                handler.sendEmptyMessage(INITIALIZATION_FAILED);
+            if (StringUtils.isBlank(link)) {
+                initializationFailed();
+                return;
             }
 
-            if (link.length() == 0) {
-                handler.sendEmptyMessage(INITIALIZATION_FAILED);
-            }
+            if (!NetworkUtils.isOnline(this))
+                needInternetConnection();
 
-            ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo ni = cm.getActiveNetworkInfo();
-            if (ni != null && ni.isConnectedOrConnecting()) {
-                isOnline = true;
-            }
-
-            if (!isOnline) {
-                handler.sendEmptyMessage(NEED_INTERNET_CONNECTION);
-            }
-
-            webView = (WebView) findViewById(R.id.romanblack_multicontacts_web_webview);
+            webView = (WebView) findViewById(R.id.grouped_contacts_web_web_view);
             webView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
+
             webView.getSettings().setJavaScriptEnabled(true);
             webView.setWebViewClient(new WebViewClient() {
                 @Override
@@ -144,6 +110,8 @@ public class ContactsWebActivity extends AppBuilderModule {
             webView.loadUrl(link);
 
         } catch (Exception e) {
+            Log.e("GC", e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -170,5 +138,32 @@ public class ContactsWebActivity extends AppBuilderModule {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
+    }
+
+    private void initializationFailed(){
+        Toast.makeText(ContactsWebActivity.this, R.string.alert_cannot_init, Toast.LENGTH_LONG).show();
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                hideProgressDialog();
+                finish();
+            }
+        }, 5000);
+    }
+
+    private void needInternetConnection(){
+        Toast.makeText(ContactsWebActivity.this, R.string.alert_no_internet,
+                Toast.LENGTH_LONG).show();
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                hideProgressDialog();
+                finish();
+            }
+        }, 5000);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
     }
 }
