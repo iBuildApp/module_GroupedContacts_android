@@ -155,7 +155,7 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
 
                 ImageView shareButton = (ImageView) getLayoutInflater().inflate(R.layout.grouped_contacts_share_button, null);
                 shareButton.setLayoutParams(new LinearLayout.LayoutParams((int) (29 * getResources().getDisplayMetrics().density), (int) (39 * getResources().getDisplayMetrics().density)));
-                shareButton.setColorFilter(navBarDesign.itemDesign.textColor);
+                shareButton.setColorFilter(Color.BLACK);
                 setTopBarRightButton(shareButton, getString(R.string.multicontacts_list_share),  new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

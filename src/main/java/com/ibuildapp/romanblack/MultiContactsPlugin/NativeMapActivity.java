@@ -143,7 +143,9 @@ public class NativeMapActivity extends AppBuilderModuleMainAppCompat implements 
     private void goToMyLocation(){
         Set<LatLng> set = new HashSet<>();
         set.add(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
-        set.add(pointLocation);
+
+        if (pointLocation != null)
+            set.add(pointLocation);
 
         if (calculator == null)
             calculator = new GeoUtils.CenterCalculator();
