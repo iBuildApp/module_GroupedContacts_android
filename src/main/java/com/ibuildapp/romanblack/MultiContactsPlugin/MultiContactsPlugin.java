@@ -23,6 +23,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.ViewCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -202,7 +206,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
             }
 
             if (widget.getPluginXmlData().length() == 0) {
-                if (currentIntent.getStringExtra("WidgetFile").length() == 0) {
+                if (widget.getPathToXmlFile().length() == 0) {
                     handler.sendEmptyMessageDelayed(INITIALIZATION_FAILED, 100);
                     return;
                 }
@@ -212,17 +216,12 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                 @Override
                 public void run() {
                     try {//ErrorLogging
-                        if (widget.getPluginXmlData() != null) {
-                            if (widget.getPluginXmlData().length() > 0) {
+                        if (widget.getPluginXmlData() != null && widget.getPluginXmlData().length() > 0) {
                                 parser = new EntityParser(widget.getPluginXmlData());
                             } else {
-                                String xmlData = readXmlFromFile(getIntent().getStringExtra("WidgetFile"));
+                                String xmlData = readXmlFromFile(widget.getPathToXmlFile());
                                 parser = new EntityParser(xmlData);
                             }
-                        } else {
-                            String xmlData = readXmlFromFile(getIntent().getStringExtra("WidgetFile"));
-                            parser = new EntityParser(xmlData);
-                        }
                         persons = parser.parse();
 
                         Statics.color1 = parser.getColor1();
@@ -284,7 +283,7 @@ public class MultiContactsPlugin extends AppBuilderModuleMain implements View.On
                 overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
             }
         });
-        setTopBarTitleColor(getResources().getColor(android.R.color.black));
+        setTopBarTitleColor(ContextCompat.getColor(this, android.R.color.black));
 
         clearSearch = (ImageView) findViewById(R.id.grouped_contacts_delete_search);
         separator = findViewById(R.id.gc_head_separator);
