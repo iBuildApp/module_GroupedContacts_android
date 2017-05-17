@@ -25,5 +25,11 @@ dependencies {
 
     compile "com.github.bumptech.glide:glide:$GlideVersion"
     compile "com.google.android.gms:play-services-maps:$PlayServicesAdsVersion"
+    compile "com.squareup.retrofit2:adapter-rxjava:$RetrofitAdapterRxJavaVersion"
+    compile "com.squareup.retrofit2:converter-gson:$RetrofitGsonConverterVersion"
+    compile "io.reactivex:rxandroid:$RxAndroidVertion"
+    compile "io.reactivex:rxjava:$RxJavaVersion"
+    compile "com.squareup.retrofit2:retrofit:$RetrofitVersion"
+    compile "com.squareup.okhttp3:logging-interceptor:$Okhttp3LoggingInterceptorVersion"
 
 }

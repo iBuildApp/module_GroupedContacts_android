@@ -21,9 +21,15 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.ibuildapp.romanblack.MultiContactsPlugin.maps.GoogleMapsApiService;
+import com.ibuildapp.romanblack.MultiContactsPlugin.maps.MapResponse;
+import com.ibuildapp.romanblack.MultiContactsPlugin.maps.SimpleSubscriber;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class NativeMapActivity extends AppBuilderModuleMainAppCompat implements OnMapReadyCallback {
 
@@ -123,29 +129,67 @@ public class NativeMapActivity extends AppBuilderModuleMainAppCompat implements 
             builder.position(new LatLng(address.getLatitude(), address.getLongitude()));
             mapObject.addMarker(builder);
             pointLocation = builder.getPosition();
-        } catch (Exception e) {
-            Log.e(NativeMapActivity.class.getSimpleName(), e.getMessage());
-            e.printStackTrace();
-        }
 
-        myLocation = mapObject.getMyLocation();
-        if (myLocation == null)
-            mapObject.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-                @Override
-                public void onMyLocationChange(Location location) {
-                    myLocation = location;
-                    mapObject.setOnMyLocationChangeListener(null);
-                    goToMyLocation();
-                }
-            });
+
+            myLocation = mapObject.getMyLocation();
+            if (myLocation == null)
+                mapObject.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+                    @Override
+                    public void onMyLocationChange(Location location) {
+                        myLocation = location;
+                        mapObject.setOnMyLocationChangeListener(null);
+                        goToMyLocation();
+                    }
+                });
+        }  catch (Exception e) {
+            Log.e(NativeMapActivity.class.getSimpleName(), e.getMessage());
+            tryFromApi(addressString);
+        }
     }
 
+    private void tryFromApi(String addressString) {
+        new GoogleMapsApiService().getIBApi().getAddressLocation(addressString, "true")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SimpleSubscriber<MapResponse>(){
+                    @Override
+                    public void onError(Throwable e) {
+                        super.onError(e);
+                    }
+
+                    @Override
+                    public void onNext(MapResponse mapResponse) {
+                        com.ibuildapp.romanblack.MultiContactsPlugin.maps.Location coordinates = mapResponse.getResults()[0].getGeometry().getLocation();
+                        MarkerOptions builder = new MarkerOptions();
+                        builder.position(new LatLng(coordinates.getLat(), coordinates.getLng()));
+                        mapObject.addMarker(builder);
+                        pointLocation = builder.getPosition();
+
+                        myLocation = mapObject.getMyLocation();
+                        if (myLocation == null)
+                            mapObject.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+                                @Override
+                                public void onMyLocationChange(Location location) {
+                                    myLocation = location;
+                                    mapObject.setOnMyLocationChangeListener(null);
+                                    goToMyLocation();
+                                }
+                            });
+                    }
+                });
+    }
     private void goToMyLocation(){
         Set<LatLng> set = new HashSet<>();
-        set.add(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
+       /* set.add(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
 
         if (pointLocation != null)
+            set.add(pointLocation);*/
+        if (pointLocation != null) {
             set.add(pointLocation);
+        } else
+        {
+            set.add(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
+        }
 
         if (calculator == null)
             calculator = new GeoUtils.CenterCalculator();

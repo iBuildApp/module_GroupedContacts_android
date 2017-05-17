@@ -13,8 +13,30 @@ import java.util.Set;
 
 public abstract class GeoUtils {
     private static final String LOG_NAME = "GEO";
+    private static final int ATTEMPT_COUNT = 3;
 
     public static Address getAddressByName(Context context, String addressString) throws Exception {
+
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        Address address = getAddressByName(addressString, ATTEMPT_COUNT, geocoder);
+        if (address == null)
+            throw new Exception("Address not found");
+        else return address;
+    }
+
+    private static Address getAddressByName(String addressString, int attempt, Geocoder geocoder) throws Exception {
+        if( attempt == 0)
+            throw new Exception("Address not found");
+
+        attempt--;
+
+        List<Address> addresses = geocoder.getFromLocationName(addressString, 10);
+        if (addresses.size() == 0)
+            return getAddressByName(addressString, attempt, geocoder);
+        else return addresses.get(0);
+    }
+
+/*    public static Address getAddressByName(Context context, String addressString) throws Exception {
         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocationName(addressString, 1);
@@ -24,7 +46,7 @@ public abstract class GeoUtils {
         } catch (IOException e) {
             throw e;
         }
-    }
+    }*/
 
     public static class CenterCalculator{
         private LatLng center;
