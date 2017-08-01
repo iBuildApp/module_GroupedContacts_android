@@ -405,7 +405,8 @@ public class ContactDetailsActivity extends AppBuilderModuleMain {
                         @Override
                         public void onCall(DialogInterface dialog) {
                             dialog.dismiss();
-                            Intent callIntent = new Intent(Intent.ACTION_CALL);
+                         //   Intent callIntent = new Intent(Intent.ACTION_CALL);
+                            Intent callIntent = new Intent(Intent.ACTION_DIAL);
                             callIntent.setData(Uri.parse("tel:" + phoneNumber));
                             startActivity(callIntent);
                             overridePendingTransition(R.anim.activity_open_translate, R.anim.activity_close_scale);
